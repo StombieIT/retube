@@ -1,0 +1,6 @@
+services:
+  video-queue:
+    image: rabbitmq:4.0.3
+    ports:
+      - "15672:15672"
+      - "5672:5672"
