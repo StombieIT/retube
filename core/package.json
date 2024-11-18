@@ -1,0 +1,29 @@
+{
+  "name": "@stombie/retube-core",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs.js",
+      "import": "./dist/index.esm.js"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "description": "",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.9.0",
+    "rollup": "^4.27.3",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  }
+}

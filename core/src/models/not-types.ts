@@ -1,0 +1,1 @@
+export const bred = 3;

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { connect, Connection, Channel } from 'amqplib';
-import { IVideoChunk, VideoId } from './models/common';
+import { IVideoChunk } from '@stombie/retube-core';
 
 const {
     AMQP_CONNECTION_STRING = 'amqp://localhost:5672',
