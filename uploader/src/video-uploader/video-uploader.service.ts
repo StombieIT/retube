@@ -28,6 +28,7 @@ export class VideoUploaderService implements OnModuleInit, OnModuleDestroy {
     protected handleMessage(msg: ConsumeMessage | null) {
         if (msg) {
             const messageContent = msg.content.toString();
+            console.log('GOT MESSAGE', message)
         }
     }
 }

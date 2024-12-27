@@ -1,6 +1,10 @@
 services:
   video-queue:
-    image: rabbitmq:4.0.3
+    image: rabbitmq:3-management
+    container_name: video-queue
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     ports:
       - "15672:15672"
       - "5672:5672"

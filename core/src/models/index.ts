@@ -1,2 +1,2 @@
-export * from "./video";
+export * from "./upload";
 export * from "./not-types";

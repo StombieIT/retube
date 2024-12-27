@@ -1,7 +1,7 @@
-export type VideoId = string;
+export type UploadSessionId = string;
 
 export interface IVideoChunk {
-    id: VideoId;
+    sessionId: UploadSessionId;
     // Представление чанка видео в виде последовательности байт
     content: Buffer;
     // Байт, с которого начинается текущий чанк в исходном видео

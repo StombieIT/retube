@@ -1,11 +1,17 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { connect, Connection, Channel } from 'amqplib';
-import { IVideoChunk } from '@stombie/retube-core';
+import * as amqplib from 'amqplib/callback_api';
+import { IVideoChunk, VideoId } from '@stombie/retube-core';
 
 const {
-    AMQP_CONNECTION_STRING = 'amqp://localhost:5672',
+    AMQP_CONNECTION_STRING = 'amqp://guest:guest@localhost:5672',
     AMQP_VIDEO_UPLOAD_QUEUE = 'video-upload'
 } = process.env;
+
+console.log('br', amqplib);
+amqplib.connect(AMQP_CONNECTION_STRING, (res, err) => {
+    console.log('got some res');
+});
 
 @Injectable()
 export class UploadService implements OnModuleInit, OnModuleDestroy {
@@ -13,25 +19,19 @@ export class UploadService implements OnModuleInit, OnModuleDestroy {
     private channel: Channel;
 
     async onModuleInit() {
+        console.log('bfre');
         this.connection = await connect(AMQP_CONNECTION_STRING);
+        console.log('attempting');
         this.channel = await this.connection.createChannel();
-
+        
         // Очередь не является устойчивой (при перезапуске инфомарция сотрётся)
         await this.channel.assertQueue(AMQP_VIDEO_UPLOAD_QUEUE, { durable: false });
+        console.log('connect upload');
     }
 
     async onModuleDestroy() {
         await this.channel.close();
         await this.connection.close();
-    }
-
-    initUpload() {
-        // TODO: implement
-    }
-
-    // TODO: implement
-    abortUpload(videoId: VideoId) {
-        // ignore
     }
 
     queueChunkUpload(chunk: IVideoChunk) {
