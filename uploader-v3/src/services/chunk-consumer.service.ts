@@ -19,8 +19,8 @@ export class ChunkConsumer extends EventEmitter<ChunkConsumerEventMap> implement
 
     constructor(configService: ConfigService) {
         super();
-        this.amqpConnectionString = configService.get<string>('AMQP_CONNECTION_STRING', 'amqp://localhost');
-        this.queue = configService.get<string>('CHUNK_UPLOAD_AMQP_QUEUE', 'chunk-upload');
+        this.amqpConnectionString = configService.get<string>('amqp.connectionString', 'amqp://localhost');
+        this.queue = configService.get<string>('amqp.chunkUploadQueue', 'chunk-upload');
         this.preconsumedMessageById = {};
     }
 

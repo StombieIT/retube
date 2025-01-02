@@ -7,7 +7,6 @@ export class MockChunkPusher implements OnModuleInit {
     private readonly amqpConnectionString: string;
     private readonly queue: string;
 
-    private initPromise: Maybe<Promise<void>>;
     private connection: Maybe<Connection>;
     private channel: Maybe<Channel>;
 
