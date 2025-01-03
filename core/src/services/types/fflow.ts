@@ -6,10 +6,11 @@ export namespace FFlow {
         }     
 
         export interface Create extends BaseResponse {
-            pushLink: string;
+            flowUrl: string;
         }
 
         export type Delete = BaseResponse;
         export type Push = BaseResponse;
+        export type Finish = BaseResponse;
     }
 }

@@ -4,12 +4,12 @@ import { connect as amqpConnect, Channel, Connection, ConsumeMessage, Message } 
 import { IVideoChunk } from '@stombie/retube-core';
 import * as EventEmitter from 'node:events';
 
-interface ChunkConsumerEventMap {
+interface ChunkConsumerServiceEventMap {
     chunk: any[];
 }
 
 @Injectable()
-export class ChunkConsumer extends EventEmitter<ChunkConsumerEventMap> implements OnModuleInit { 
+export class ChunkConsumerService extends EventEmitter<ChunkConsumerServiceEventMap> implements OnModuleInit { 
     private readonly amqpConnectionString: string;
     private readonly queue: string;
     private readonly preconsumedMessageById: Record<string, Message>;

@@ -6,6 +6,7 @@ export enum FFmpegArg {
     AUDIO_BITRATE = '-b:a',
     FORMAT = '-f',
     SEGMENT_DURATION = '-segment_time',
+    SEGMENT_FORMAT = '-segment_format',
     HLS_PLAYLIST_TYPE = '-hls_playlist_type',
     HLS_SEGMENT_FILENAME = '-hls_segment_filename',
     DASH_INIT_SEG_NAME = '-init_seg_name',

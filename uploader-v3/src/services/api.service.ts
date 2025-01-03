@@ -41,16 +41,34 @@ export class ApiService {
     }
 
     /**
-     * Отправка данных в поток
+     * Успешное завершение потока
      */
-    async pushToFlow(uploadSessionId: string, buffer: Buffer): Promise<AxiosResponse<FFlow.Response.Push>> {
-        const url = `${this.fflowUrl}/${uploadSessionId}/push`;
+    async finishFlow(finishUrl: string): Promise<AxiosResponse<FFlow.Response.Finish>> {
         try {
             return firstValueFrom(
-                this.httpService.post(url, buffer),
+                this.httpService.post(finishUrl),
             );
         } catch (error) {
-            throw new Error(`Error pushing data to flow: ${error.message}`);
+            throw new Error(`ApiService#finishFlow: Error finishing flow: ${error.message}`);
+        }
+    }
+
+    /**
+     * Отправка данных в поток
+     */
+    async pushToFlow(pushUrl: string, buffer: Buffer): Promise<FFlow.Response.Push> {
+        try {
+            const response = await fetch(pushUrl, {
+                body: buffer,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/octet-stream'
+                },
+            });
+            const result = await response.json();
+            return result as FFlow.Response.Push;
+        } catch (error) {
+            throw new Error(`ApiService#pushToFlow: Error pushing data to flow: ${error.message}`);
         }
     }
 }
