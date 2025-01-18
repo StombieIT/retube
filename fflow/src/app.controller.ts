@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Param, Delete, HttpException, HttpStatus, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { FFlow, UploadSessionId } from '@stombie/retube-core';
-import { FFlowService } from './fflow.service';
+import { AppService } from './services/app.service';
 import { FlowNotFoundError } from './errors/flow-not-found.error';
 import { ConfigService } from '@nestjs/config';
 
@@ -10,7 +10,7 @@ export class AppController {
     private readonly globalPrefix: string;
     private readonly host: string;
 
-    constructor(private readonly fflowService: FFlowService,
+    constructor(private readonly app: AppService,
                 configService: ConfigService) {
         this.globalPrefix = configService.get<string>('app.globalPrefix', '');
         this.host = configService.get<string>('app.host', 'localhost');
@@ -23,12 +23,11 @@ export class AppController {
     async createFlow(
         @Req() request: Request,
         @Param('uploadSessionId') uploadSessionId: UploadSessionId,
-        @Body('args') args: string[],
     ): Promise<FFlow.Response.Create> {
-        console.log('createFlow', uploadSessionId, args);
+        console.log('createFlow', uploadSessionId);
         try {
             // Создание потока
-            this.fflowService.createFlow(uploadSessionId, args);
+            await this.app.createFlow(uploadSessionId);
 
             const protocol = request.protocol;
             // Возвращаем ссылку на flowUrl
@@ -55,7 +54,7 @@ export class AppController {
     @Delete(':uploadSessionId')
     async deleteFlow(@Param('uploadSessionId') uploadSessionId: UploadSessionId): Promise<FFlow.Response.Delete> {
         try {
-            this.fflowService.deleteFlow(uploadSessionId);
+            await this.app.deleteFlow(uploadSessionId);
             return {
                 status: 'success',
                 message: `Flow for session ${uploadSessionId} deleted successfully`,
@@ -90,7 +89,7 @@ export class AppController {
     ): Promise<FFlow.Response.Push> {
         console.log('pushToFlow', uploadSessionId, buffer);
         try {
-            this.fflowService.pushToFlow(uploadSessionId, buffer);
+            this.app.pushToFlow(uploadSessionId, buffer);
             return {
                 status: 'success',
                 message: `Data pushed to flow for session ${uploadSessionId}`,
@@ -126,7 +125,7 @@ export class AppController {
         console.log('finishFlow', uploadSessionId);
         try {
             // Вызов метода для завершения потока
-            this.fflowService.finishFlow(uploadSessionId);
+            await this.app.finishFlow(uploadSessionId);
 
             return {
                 status: 'success',

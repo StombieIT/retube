@@ -17,11 +17,11 @@ export class ApiService {
     /**
      * Создание нового потока
      */
-    async createFlow(uploadSessionId: string, args: string[]): Promise<AxiosResponse<FFlow.Response.Create>> {
+    async createFlow(uploadSessionId: string): Promise<AxiosResponse<FFlow.Response.Create>> {
         const url = `${this.fflowUrl}/${uploadSessionId}`;
         try {
             return firstValueFrom(
-                this.httpService.post(url, { args }),
+                this.httpService.post(url),
             );
         } catch (error) {
             throw new Error(`Error creating flow: ${error.message}`);

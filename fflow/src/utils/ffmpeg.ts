@@ -13,6 +13,7 @@ export enum FFmpegArg {
     DASH_MEDIA_SEG_NAME = '-media_seg_name',
     DASH_USE_TEMPLATE = '-use_template',
     DASH_USE_TIMELINE = '-use_timeline',
+    LOG_LEVEL = '-loglevel'
 }
 
 class FFmpegArgsBuilder {

@@ -13,4 +13,6 @@ export namespace FFlow {
         export type Push = BaseResponse;
         export type Finish = BaseResponse;
     }
+
+    export type FFmpegFormat = 'dash' | 'hls';
 }

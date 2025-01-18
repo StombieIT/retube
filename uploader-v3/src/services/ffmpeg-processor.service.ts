@@ -3,33 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import { UploadSessionId } from '@stombie/retube-core';
 import { ApiService } from './api.service';
 import { FFlowCacheService } from './fflow-cache.service';
-import { FFmpegArg, ffmpegArgsBuilder } from 'src/utils/ffmpeg';
-import { FFmpegFormat } from '../types/ffmpeg';
 
 // TODO: мб вообще не нужен, перенести все в AppService
 @Injectable()
 export class FFmpegProcessorService {
-    private readonly videoCodec: string;
-    private readonly audioCodec: string;
-    private readonly videoBitrate: string;
-    private readonly audioBitrate: string;
-    private readonly format: FFmpegFormat;
-    private readonly segmentDuration: number;
-    private readonly segmentFormat: string;
-    // TODO: remove
-    private readonly localFileStorage: string;
+    private readonly holderUrl: string;
 
     constructor(private readonly api: ApiService,
                 private readonly fflowCache: FFlowCacheService,
                 configService: ConfigService) {
-        this.videoCodec = configService.get<string>('ffmpeg.videoCodec');
-        this.audioCodec = configService.get<string>('ffmpeg.audioCodec');
-        this.videoBitrate = configService.get<string>('ffmpeg.videoBitrate');
-        this.audioBitrate = configService.get<string>('ffmpeg.audioBitrate');
-        this.format = configService.get<FFmpegFormat>('ffmpeg.format');
-        this.segmentDuration = configService.get<number>('ffmpeg.segmentDuration');
-        this.segmentFormat = configService.get<string>('ffmpeg.segmentFormat');
-        this.localFileStorage = configService.get<string>('LOCAL_FILE_STORAGE');
+        this.holderUrl = configService.get<string>('ftp.holderUrl', 'ftp://localhost:21');
     }
 
     // TODO: добавить отдельный класс для работы с флоу
@@ -43,20 +26,7 @@ export class FFmpegProcessorService {
             }
             flowUrl = cachedFlowUrl;
         } else {
-            // TODO: добавить также формат HLS
-            const args = ffmpegArgsBuilder()
-                .addInput('pipe:0')
-                .addArg(FFmpegArg.VIDEO_CODEC, this.videoCodec)
-                .addArg(FFmpegArg.AUDIO_CODEC, this.audioCodec)
-                .addArg(FFmpegArg.VIDEO_BITRATE, this.videoBitrate)
-                .addArg(FFmpegArg.AUDIO_BITRATE, this.audioBitrate)
-                .addArg(FFmpegArg.FORMAT, this.format)
-                .addArg(FFmpegArg.SEGMENT_DURATION, this.segmentDuration)
-                .addArg(FFmpegArg.SEGMENT_FORMAT, this.segmentFormat)
-                // TODO: добавить ftp сервер
-                .addOutput(this.localFileStorage)
-                .build();
-            const { data } = await this.api.createFlow(uploadSessionId, args);
+            const { data } = await this.api.createFlow(uploadSessionId);
             flowUrl = data.flowUrl;
             await this.fflowCache.addFlowUrl(uploadSessionId, flowUrl);
         }
