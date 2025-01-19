@@ -21,3 +21,5 @@ services:
       - POSTGRES_USER=postgres
     ports:
       - "5432:5432"
+    volumes:
+      - ./file-storage/db:/var/lib/postgresql/data
