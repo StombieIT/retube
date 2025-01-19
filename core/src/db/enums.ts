@@ -1,0 +1,15 @@
+export enum VideoStatus {
+    CREATED = 'CREATED',
+    UPLOADING = 'UPLOADING',
+    DISTRIBUTED = 'DISTRIBUTED',
+    BLOCKED = 'BLOCKED',
+}
+
+export enum FlowStatus {
+    CREATED = 'CREATED',
+    UPLOADING = 'UPLOADING',
+    PROCESSING = 'PROCESSING',
+    DISTRIBUTED = 'DISTRIBUTED',
+    HIDDEN = 'HIDDEN',
+}
+  

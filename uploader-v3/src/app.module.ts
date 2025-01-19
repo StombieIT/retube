@@ -16,7 +16,7 @@ import { FtpConfig } from './config/ftp.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [AmqpConfig, ApiConfig, RedisConfig, FtpConfig]
+      load: [AmqpConfig, ApiConfig, RedisConfig, FtpConfig],
     }),
     HttpModule,
   ],
