@@ -17,10 +17,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
         this.chunkConsumer.removeListener('chunk', this.handleChunk);
     }
 
-    private handleChunk = async (routingKey: string, chunk: IVideoChunk) => {
+    private handleChunk = async (correlationId: string, chunk: IVideoChunk) => {
         const { sessionId, size, startByte } = chunk;
         this.logger.log('chunk', sessionId);
-        await this.chunkConsumer.acceptMessageByCorrelationId(routingKey);
+        await this.chunkConsumer.acceptMessageByCorrelationId(correlationId);
         // await this.ffmpegProcessor.pushToFlow(uploadSessionId, content);
         // // TODO: добавить обращение к БД
         // if (chunk.size < 4096) {
