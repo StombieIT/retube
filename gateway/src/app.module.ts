@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@stombie/retube-core';
+import { User, Video, Flow, UploadSession } from '@stombie/retube-core';
 import { ConfigModule } from '@nestjs/config';
 import { AppService } from './services/app.service';
 import { AmqpConfig } from './config/amqp.config';
-import { MockChunkPusherService } from './services/mock-chunk-pusher.service';
+import { ChunkExchangeService } from './services/chunk-exchange.service';
 
-const DB_ENTITIES = [User];
+const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
 @Module({
     imports: [
@@ -22,6 +22,6 @@ const DB_ENTITIES = [User];
             load: [AmqpConfig]
         }),
     ],
-    providers: [AppService, MockChunkPusherService],
+    providers: [AppService, ChunkExchangeService],
 })
 export class AppModule {}

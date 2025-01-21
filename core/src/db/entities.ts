@@ -1,6 +1,6 @@
 import {
     Entity, PrimaryGeneratedColumn, Column,
-    OneToMany, CreateDateColumn, ManyToOne,
+    OneToMany, ManyToOne,
     OneToOne, JoinColumn
 } from 'typeorm';
 import { FlowStatus, VideoStatus } from './enums';
@@ -20,13 +20,13 @@ export class User {
 @Entity({ name: 'upload_sessions' })
 export class UploadSession {
     @PrimaryGeneratedColumn('uuid')
-    session_id!: string;
+    id!: string;
 
-    @Column('bigint')
-    total_bytes!: number;
+    @Column('bigint', { name: 'total_bytes' })
+    totalBytes!: number;
 
-    @Column('bigint', { default: 0 })
-    uploaded_bytes!: number;
+    @Column('bigint', { name: 'uploaded_bytes', default: 0 })
+    uploadedBytes!: number;
 
     @OneToOne(() => Flow, (flow) => flow.uploadSession, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'entity_id' })
@@ -36,7 +36,7 @@ export class UploadSession {
 @Entity({ name: 'flows' })
 export class Flow {
     @PrimaryGeneratedColumn('uuid')
-    entity_id!: string;
+    id!: string;
 
     @Column({
         type: 'enum',
@@ -49,7 +49,7 @@ export class Flow {
     createdAt!: Date;
 
     @Column({ name: 'uploaded_at', type: 'timestamp', nullable: true })
-    uploadedAt!: Date;
+    uploadedAt?: Date;
 
     @ManyToOne(() => Video, (video) => video.flows, { onDelete: 'CASCADE' })
     video!: Video;
@@ -72,8 +72,11 @@ export class Video {
     @Column('int')
     duration!: number;
 
-    @CreateDateColumn({ name: 'upload_date' })
-    uploadDate!: Date;
+    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt!: Date;
+
+    @Column({ name: 'uploaded_at', type: 'timestamp', nullable: true })
+    uploadedAt?: Date;
 
     @Column({
         type: 'enum',

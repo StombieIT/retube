@@ -20,6 +20,6 @@ import { FtpConfig } from './config/ftp.config';
     }),
     HttpModule,
   ],
-  providers: [ChunkConsumerService, ApiService, FFlowCacheService, FFmpegProcessorService, MockChunkPusher, AppService],
+  providers: [ChunkConsumerService, ApiService, FFlowCacheService, FFmpegProcessorService, AppService],
 })
 export class AppModule {}
