@@ -22,10 +22,10 @@ export class UploadSession {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Column('bigint', { name: 'total_bytes' })
+    @Column('int', { name: 'total_bytes' })
     totalBytes!: number;
 
-    @Column('bigint', { name: 'uploaded_bytes', default: 0 })
+    @Column('int', { name: 'uploaded_bytes', default: 0 })
     uploadedBytes!: number;
 
     @OneToOne(() => Flow, (flow) => flow.uploadSession, { onDelete: 'CASCADE' })

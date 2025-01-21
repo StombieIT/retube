@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { ChunkConsumerService } from './services/chunk-consumer.service';
-import { MockChunkPusher } from './services/mock-chunk-pusher.service';
 import { ApiService } from './services/api.service';
 import { FFlowCacheService } from './services/fflow-cache.service';
 import { FFmpegProcessorService } from './services/ffmpeg-processor.service';
@@ -11,14 +10,24 @@ import { ApiConfig } from './config/api.config';
 import { RedisConfig } from './config/redis.config';
 import { AppService } from './services/app.service';
 import { FtpConfig } from './config/ftp.config';
+import { User, Video, Flow, UploadSession } from '@stombie/retube-core';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [AmqpConfig, ApiConfig, RedisConfig, FtpConfig],
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DB_CONNECTION_STRING ?? 'postgresql://postgres:postgres@localhost:5432/retube',
+      entities: DB_ENTITIES,
     }),
-    HttpModule,
+    TypeOrmModule.forFeature(DB_ENTITIES),
+      ConfigModule.forRoot({
+        isGlobal: true,
+        load: [AmqpConfig, ApiConfig, RedisConfig, FtpConfig],
+      }),
+      HttpModule,
   ],
   providers: [ChunkConsumerService, ApiService, FFlowCacheService, FFmpegProcessorService, AppService],
 })
