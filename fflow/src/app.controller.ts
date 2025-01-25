@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Param, Delete, HttpException, HttpStatus, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { FFlow, UploadSessionId } from '@stombie/retube-core';
+import { FFlow } from '@stombie/retube-core';
 import { AppService } from './services/app.service';
 import { FlowNotFoundError } from './errors/flow-not-found.error';
 import { ConfigService } from '@nestjs/config';
@@ -22,7 +22,7 @@ export class AppController {
     @Post(':uploadSessionId')
     async createFlow(
         @Req() request: Request,
-        @Param('uploadSessionId') uploadSessionId: UploadSessionId,
+        @Param('uploadSessionId') uploadSessionId: string,
     ): Promise<FFlow.Response.Create> {
         console.log('createFlow', uploadSessionId);
         try {
@@ -52,7 +52,7 @@ export class AppController {
      * Удаление существующего потока ffmpeg
      */
     @Delete(':uploadSessionId')
-    async deleteFlow(@Param('uploadSessionId') uploadSessionId: UploadSessionId): Promise<FFlow.Response.Delete> {
+    async deleteFlow(@Param('uploadSessionId') uploadSessionId: string): Promise<FFlow.Response.Delete> {
         try {
             await this.app.deleteFlow(uploadSessionId);
             return {
@@ -84,7 +84,7 @@ export class AppController {
      */
     @Post(':uploadSessionId/push')
     async pushToFlow(
-        @Param('uploadSessionId') uploadSessionId: UploadSessionId,
+        @Param('uploadSessionId') uploadSessionId: string,
         @Body() buffer: Buffer,
     ): Promise<FFlow.Response.Push> {
         console.log('pushToFlow', uploadSessionId, buffer);
@@ -120,7 +120,7 @@ export class AppController {
      */
     @Post(':uploadSessionId/finish')
     async finishFlow(
-        @Param('uploadSessionId') uploadSessionId: UploadSessionId,
+        @Param('uploadSessionId') uploadSessionId: string,
     ): Promise<FFlow.Response.Finish> {
         console.log('finishFlow', uploadSessionId);
         try {

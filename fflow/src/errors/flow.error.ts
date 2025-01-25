@@ -1,9 +1,7 @@
-import { UploadSessionId } from '@stombie/retube-core';
-
 export class FlowError extends Error {
-    public uploadSessionId: UploadSessionId;
+    public uploadSessionId: string;
 
-    constructor(uploadSessionId: UploadSessionId, message?: string) {
+    constructor(uploadSessionId: string, message?: string) {
         super(message);
         this.uploadSessionId = uploadSessionId;
     }

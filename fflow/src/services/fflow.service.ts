@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FFlow, UploadSessionId } from '@stombie/retube-core';
+import { FFlow } from '@stombie/retube-core';
 import { ChildProcess, spawn } from 'child_process';
 import { FlowNotFoundError } from '../errors/flow-not-found.error';
 import { FlowAlreadyExistsError } from '../errors/flow-already-exists.error';
@@ -9,7 +9,7 @@ import { FFmpegArg, ffmpegArgsBuilder } from '../utils/ffmpeg';
 @Injectable()
 export class FFlowService {
     private readonly logger = new Logger(FFlowService.name);
-    private readonly flowBySessionId: Record<UploadSessionId, ChildProcess>;
+    private readonly flowBySessionId: Record<string, ChildProcess>;
     private readonly videoCodec: string;
     private readonly audioCodec: string;
     private readonly videoBitrate: string;
@@ -32,7 +32,7 @@ export class FFlowService {
     }
 
     // TODO: мб добавить подвязку не на uploadSessionId, а на встроенном айдишнике линии
-    createFlow(uploadSessionId: UploadSessionId, output: string) {
+    createFlow(uploadSessionId: string, output: string) {
         const args = ffmpegArgsBuilder()
             .addInput('pipe:0')
             .addArg(FFmpegArg.VIDEO_CODEC, this.videoCodec)
@@ -59,19 +59,19 @@ export class FFlowService {
         this.flowBySessionId[uploadSessionId] = process;
     }
     
-    async deleteFlow(uploadSessionId: UploadSessionId) {
+    async deleteFlow(uploadSessionId: string) {
         this.checkFlowExistance(uploadSessionId);
         await this.killFlow(uploadSessionId);
         // TODO: добавить очистку ресурсов
     }
 
-    pushToFlow(uploadSessionId: UploadSessionId, buffer: Buffer) {
+    pushToFlow(uploadSessionId: string, buffer: Buffer) {
         this.checkFlowExistance(uploadSessionId);
         this.flowBySessionId[uploadSessionId].stdin.write(buffer);
         // TODO: добавить ожидание обработки данных ffmpeg'ом
     }
 
-    async finishFlow(uploadSessionId: UploadSessionId): Promise<void> {
+    async finishFlow(uploadSessionId: string): Promise<void> {
         this.checkFlowExistance(uploadSessionId);
         const destroyPromise = this.listenDestroy(uploadSessionId);
         this.flowBySessionId[uploadSessionId].stdin.end();
@@ -80,14 +80,14 @@ export class FFlowService {
         delete this.flowBySessionId[uploadSessionId];
     }
 
-    private async killFlow(uploadSessionId: UploadSessionId) {
+    private async killFlow(uploadSessionId: string) {
         const destroyPromise = this.listenDestroy(uploadSessionId);
         this.flowBySessionId[uploadSessionId].kill();
         await destroyPromise;
         delete this.flowBySessionId[uploadSessionId];
     }
 
-    private listenDestroy(uploadSessionId: UploadSessionId) {
+    private listenDestroy(uploadSessionId: string) {
         const destroyTasks = [
             new Promise(resolve => {
                 this.flowBySessionId[uploadSessionId].on('exit', resolve);
@@ -99,7 +99,7 @@ export class FFlowService {
         return Promise.all(destroyTasks);
     }
 
-    private checkFlowExistance(uploadSessionId: UploadSessionId) {
+    private checkFlowExistance(uploadSessionId: string) {
         if (!this.flowBySessionId[uploadSessionId]) {
             throw new FlowNotFoundError(uploadSessionId);
         }

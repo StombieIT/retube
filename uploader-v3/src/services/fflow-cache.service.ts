@@ -1,7 +1,6 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
-import { UploadSessionId } from '@stombie/retube-core';
 
 @Injectable()
 export class FFlowCacheService implements OnModuleInit, OnModuleDestroy {    
@@ -25,7 +24,7 @@ export class FFlowCacheService implements OnModuleInit, OnModuleDestroy {
         return this.redisDB.quit();
     }
 
-    async isFlowExists(uploadSessionId: UploadSessionId): Promise<boolean> {
+    async isFlowExists(uploadSessionId: string): Promise<boolean> {
         try {
             const exists = await this.redisDB.exists(uploadSessionId);
             if (exists === 1) {
@@ -40,7 +39,7 @@ export class FFlowCacheService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-    async getFlowUrl(uploadSessionId: UploadSessionId): Promise<Maybe<string>> {
+    async getFlowUrl(uploadSessionId: string): Promise<Maybe<string>> {
         try {
             const flowUrl = await this.redisDB.get(uploadSessionId);
 
@@ -61,7 +60,7 @@ export class FFlowCacheService implements OnModuleInit, OnModuleDestroy {
      * @param uploadSessionId - сессия загрузки
      * @param flowUrl - урл линии загрузки
      */
-    async addFlowUrl(uploadSessionId: UploadSessionId, flowUrl: string): Promise<boolean> {
+    async addFlowUrl(uploadSessionId: string, flowUrl: string): Promise<boolean> {
         try {
             await this.redisDB.set(uploadSessionId, flowUrl);
             return true;
@@ -76,7 +75,7 @@ export class FFlowCacheService implements OnModuleInit, OnModuleDestroy {
      * @returns {boolean} - если удаление успешно - true, неуспешно - false
      * @param uploadSessionId - сессия загрузки
      */
-    async deleteFlowUrl(uploadSessionId: UploadSessionId): Promise<boolean> {
+    async deleteFlowUrl(uploadSessionId: string): Promise<boolean> {
         try {
             await this.redisDB.del(uploadSessionId);
             return true;

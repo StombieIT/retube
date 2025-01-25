@@ -1,5 +1,4 @@
 import * as fs from 'fs/promises';
-import { UploadSessionId } from '@stombie/retube-core';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FFlowService } from './fflow.service';
@@ -19,7 +18,7 @@ export class AppService {
         this.dashManifestFilename = `${manifestName}.mpd`;
     }
 
-    async createFlow(uploadSessionId: UploadSessionId) {
+    async createFlow(uploadSessionId: string) {
         const uploadDir = this.path.dashFFlow(uploadSessionId);
         const uploadPath = this.path.dashFFlow(uploadSessionId, this.dashManifestFilename);
         await Promise.all([
@@ -28,13 +27,13 @@ export class AppService {
         ]);
     }
 
-    async deleteFlow(uploadSessionId: UploadSessionId) {
+    async deleteFlow(uploadSessionId: string) {
         await this.fflow.deleteFlow(uploadSessionId);
         const uploadDir = this.path.dashFFlow(uploadSessionId);
         await fs.rmdir(uploadDir);
     }
 
-    async finishFlow(uploadSessionId: UploadSessionId) {
+    async finishFlow(uploadSessionId: string) {
         await this.fflow.finishFlow(uploadSessionId);
         const ftpUploadDir = this.path.dashFFlowPath(uploadSessionId);
         const uploadDir = this.path.dashFFlow(uploadSessionId);
@@ -47,7 +46,7 @@ export class AppService {
         await fs.rmdir(uploadDir, { recursive: true });
     }
 
-    pushToFlow(uploadSessionId: UploadSessionId, buffer: Buffer) {
+    pushToFlow(uploadSessionId: string, buffer: Buffer) {
         this.fflow.pushToFlow(uploadSessionId, buffer);
     }
 }

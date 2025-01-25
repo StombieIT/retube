@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UploadSessionId } from '@stombie/retube-core';
 import { ApiService } from './api.service';
 import { FFlowCacheService } from './fflow-cache.service';
 
@@ -16,7 +15,7 @@ export class FFmpegProcessorService {
     }
 
     // TODO: добавить отдельный класс для работы с флоу
-    async pushToFlow(uploadSessionId: UploadSessionId, buffer: Buffer) {
+    async pushToFlow(uploadSessionId: string, buffer: Buffer) {
         let flowUrl: string;
         const flowExists = await this.fflowCache.isFlowExists(uploadSessionId);
         if (flowExists) {
@@ -34,7 +33,7 @@ export class FFmpegProcessorService {
         await this.api.pushToFlow(pushUrl, buffer);
     }
 
-    async finishFlow(uploadSessionId: UploadSessionId) {
+    async finishFlow(uploadSessionId: string) {
         const flowExists = await this.fflowCache.isFlowExists(uploadSessionId);
         if (!flowExists) {
             throw new Error(`finishFlow: No flow with uploadSessionId ${uploadSessionId} found`);

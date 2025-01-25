@@ -53,10 +53,12 @@ export class ChunkConsumerService extends EventEmitter<ChunkConsumerServiceEvent
     }
 
     acceptMessageByCorrelationId(correlationId: string) {
+        this.logger.log(`Accepted message: ${correlationId}`);
         return this.replyMessage(correlationId, 'ack');
     }
 
     dropMessageByCorrelationId(correlationId: string, error?: string) {
+        this.logger.log(`Dropped message: ${correlationId} - ${error}`);
         return this.replyMessage(correlationId, 'nack', error);
     }
 

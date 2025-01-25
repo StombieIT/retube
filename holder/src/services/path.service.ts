@@ -4,7 +4,7 @@
 import { Injectable } from '@nestjs/common';
 import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
-import { FFlow, UploadSessionId } from '@stombie/retube-core';
+import { FFlow } from '@stombie/retube-core';
 
 @Injectable()
 export class PathService {
@@ -15,7 +15,7 @@ export class PathService {
     }
 
     // Общая генерация пути для указанного формата
-    fflowDir(uploadSessionId: UploadSessionId, format?: FFlow.FFmpegFormat): string {
+    fflowDir(uploadSessionId: string, format?: FFlow.FFmpegFormat): string {
         if (!format) {
             return path.resolve(this.rootPath, uploadSessionId);
         }

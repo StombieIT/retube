@@ -13,16 +13,17 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
                 private readonly ffmpegProcessor: FFmpegProcessorService,
                 @InjectRepository(UploadSession) private readonly uploadSessions: Repository<UploadSession>) {
     }
+
     onModuleInit() {
         this.chunkConsumer.addListener('chunk', this.handleChunk);
     }
+
     onModuleDestroy() {
         this.chunkConsumer.removeListener('chunk', this.handleChunk);
     }
 
     private handleChunk = async (correlationId: string, chunk: IVideoChunk) => {
         const { sessionId, size, startByte } = chunk;
-        this.logger.log('chunk', sessionId);
         const uploadSession = await this.uploadSessions.findOneBy({
             id: sessionId,
         });
