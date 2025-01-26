@@ -54,7 +54,7 @@ export class FFlowService {
             this.logger.debug(`DEBUG<${uploadSessionId}>: ${data}`);
         });
         process.stdout.on('data', data => {
-            console.info(`INFO<${uploadSessionId}>: ${data}`);
+            this.logger.debug(`INFO<${uploadSessionId}>: ${data}`);
         });
         this.flowBySessionId[uploadSessionId] = process;
     }

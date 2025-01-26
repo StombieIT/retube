@@ -24,21 +24,6 @@ export class FFlowCacheService implements OnModuleInit, OnModuleDestroy {
         return this.redisDB.quit();
     }
 
-    async isFlowExists(uploadSessionId: string): Promise<boolean> {
-        try {
-            const exists = await this.redisDB.exists(uploadSessionId);
-            if (exists === 1) {
-                return true;
-            } else {
-                console.info('isFlowExists', `Flow with uploadSessionId ${uploadSessionId} does not exist`);
-                return false;
-            }
-        } catch (err) {
-            console.error('isFlowExists', err);
-            return false;
-        }
-    }
-
     async getFlowUrl(uploadSessionId: string): Promise<Maybe<string>> {
         try {
             const flowUrl = await this.redisDB.get(uploadSessionId);

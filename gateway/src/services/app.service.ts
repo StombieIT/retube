@@ -43,7 +43,7 @@ export class AppService implements OnModuleInit {
         const user = users[0];
         const files = await Promise.all([
             fs.readFile('/Users/vladislav.yartsev/Desktop/dev/personal/retube/gateway/src/test-video.mp4'),
-            fs.readFile('/Users/vladislav.yartsev/Desktop/dev/personal/retube/gateway/src/test-video_1.mp4'),
+            // fs.readFile('/Users/vladislav.yartsev/Desktop/dev/personal/retube/gateway/src/test-video_1.mp4'),
         ]);
         const flows = await Promise.all(files.map(async (file) => {
             const flow = this.flowsRepository.create();

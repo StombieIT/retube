@@ -29,7 +29,7 @@ export class UploadSession {
     uploadedBytes!: number;
 
     @OneToOne(() => Flow, (flow) => flow.uploadSession, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'entity_id' })
+    @JoinColumn({ name: 'flow_id' })
     flow!: Flow;
 }
 
@@ -52,6 +52,7 @@ export class Flow {
     uploadedAt?: Date;
 
     @ManyToOne(() => Video, (video) => video.flows, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'video_id' })
     video!: Video;
 
     @OneToOne(() => UploadSession, (uploadSession) => uploadSession.flow, { cascade: true })

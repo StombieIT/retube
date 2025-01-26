@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Delete, HttpException, HttpStatus, Req } from '@nestjs/common';
+import { Controller, Post, Body, Param, Delete, HttpException, HttpStatus, Req, Logger } from '@nestjs/common';
 import { Request } from 'express';
 import { FFlow } from '@stombie/retube-core';
 import { AppService } from './services/app.service';
@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class AppController {
+    private readonly logger = new Logger(AppController.name);
     private readonly globalPrefix: string;
     private readonly host: string;
 
@@ -22,9 +23,9 @@ export class AppController {
     @Post(':uploadSessionId')
     async createFlow(
         @Req() request: Request,
-        @Param('uploadSessionId') uploadSessionId: string,
+        @Param('uploadSessionId') uploadSessionId?: string,
     ): Promise<FFlow.Response.Create> {
-        console.log('createFlow', uploadSessionId);
+        this.logger.log(`createFlow ${uploadSessionId}`);
         try {
             // Создание потока
             await this.app.createFlow(uploadSessionId);
@@ -87,7 +88,7 @@ export class AppController {
         @Param('uploadSessionId') uploadSessionId: string,
         @Body() buffer: Buffer,
     ): Promise<FFlow.Response.Push> {
-        console.log('pushToFlow', uploadSessionId, buffer);
+        this.logger.log(`pushToFlow ${uploadSessionId} ${buffer}`);
         try {
             this.app.pushToFlow(uploadSessionId, buffer);
             return {
