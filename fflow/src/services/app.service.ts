@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FFlowService } from './fflow.service';
 import { PathService } from './path.service';
-import { FtpClientService } from './ftp-client.service';
+import { FtpSessionsOrchestratorService } from './ftp-sessions-orchestrator.service';
 
 @Injectable()
 export class AppService {
@@ -13,7 +13,7 @@ export class AppService {
     constructor(config: ConfigService,
                 private readonly fflow: FFlowService,
                 private readonly path: PathService,
-                private readonly ftpClient: FtpClientService) {
+                private readonly ftpSessionsOrchestrator: FtpSessionsOrchestratorService) {
         const manifestName = config.get<string>('ffmpeg.manifestName', 'manifest');
         this.dashManifestFilename = `${manifestName}.mpd`;
     }
@@ -37,13 +37,15 @@ export class AppService {
         await this.fflow.finishFlow(uploadSessionId);
         const ftpUploadDir = this.path.dashFFlowPath(uploadSessionId);
         const uploadDir = this.path.dashFFlow(uploadSessionId);
-        await this.ftpClient.rawCreateDir(ftpUploadDir);
-        await this.ftpClient.rawUploadFromDir(
+        const ftpSession = await this.ftpSessionsOrchestrator.create();
+        await ftpSession.createDir(ftpUploadDir);
+        await ftpSession.uploadFromDir(
             uploadDir,
-            ftpUploadDir
+            ftpUploadDir,
         );
         this.logger.log(`Successfully uploaded files of ${uploadSessionId}`);
         await fs.rmdir(uploadDir, { recursive: true });
+        ftpSession.destroy();
     }
 
     pushToFlow(uploadSessionId: string, buffer: Buffer) {

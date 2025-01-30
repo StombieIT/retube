@@ -8,7 +8,7 @@ import { AppService } from './services/app.service';
 import { ApiConfig } from './config/api.config';
 import { FFmpegConfig } from './config/ffmpeg.config';
 import { FtpConfig } from './config/ftp.config';
-import { FtpClientService } from './services/ftp-client.service';
+import { FtpSessionsOrchestratorService } from './services/ftp-sessions-orchestrator.service';
 
 @Module({
     imports: [
@@ -18,6 +18,6 @@ import { FtpClientService } from './services/ftp-client.service';
         }),
     ],
     controllers: [AppController],
-    providers: [FFlowService, PathService, FtpClientService, AppService],
+    providers: [FFlowService, PathService, FtpSessionsOrchestratorService, AppService],
 })
 export class AppModule {}
