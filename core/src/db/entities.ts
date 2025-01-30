@@ -87,6 +87,7 @@ export class Video {
     status!: VideoStatus;
 
     @ManyToOne(() => User, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'user_id' })
     user!: User;
 
     @OneToMany(() => Flow, (flow) => flow.video)
