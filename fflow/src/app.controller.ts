@@ -88,7 +88,7 @@ export class AppController {
         @Param('uploadSessionId') uploadSessionId: string,
         @Body() buffer: Buffer,
     ): Promise<FFlow.Response.Push> {
-        this.logger.log(`pushToFlow ${uploadSessionId} ${buffer}`);
+        this.logger.log(`pushToFlow ${uploadSessionId} ${buffer.length}`);
         try {
             this.app.pushToFlow(uploadSessionId, buffer);
             return {
@@ -122,11 +122,12 @@ export class AppController {
     @Post(':uploadSessionId/finish')
     async finishFlow(
         @Param('uploadSessionId') uploadSessionId: string,
+        @Body() finishParams: FFlow.Request.Finish,
     ): Promise<FFlow.Response.Finish> {
-        console.log('finishFlow', uploadSessionId);
+        this.logger.log(`finishFlow: ${uploadSessionId}, ${finishParams.savingPath}`);
         try {
             // Вызов метода для завершения потока
-            await this.app.finishFlow(uploadSessionId);
+            await this.app.finishFlow(uploadSessionId, finishParams);
 
             return {
                 status: 'success',

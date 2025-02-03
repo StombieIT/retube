@@ -43,10 +43,10 @@ export class ApiService {
     /**
      * Успешное завершение потока
      */
-    async finishFlow(finishUrl: string): Promise<AxiosResponse<FFlow.Response.Finish>> {
+    async finishFlow(finishUrl: string, params: FFlow.Request.Finish): Promise<AxiosResponse<FFlow.Response.Finish>> {
         try {
             return firstValueFrom(
-                this.httpService.post(finishUrl),
+                this.httpService.post(finishUrl, params),
             );
         } catch (error) {
             throw new Error(`ApiService#finishFlow: Error finishing flow: ${error.message}`);

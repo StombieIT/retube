@@ -1,11 +1,11 @@
 import { Repository } from 'typeorm';
 import * as fs from 'fs/promises';
 import { Flow, IVideoChunk, UploadSession, User, Video } from '@stombie/retube-core';
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChunkExchangeService } from './chunk-exchange.service';
 
-const MAX_CHUNK_LENGTH = 4096;
+const MAX_CHUNK_LENGTH = 8192;
 
 interface Pusher {
     chunkNumber: 0;

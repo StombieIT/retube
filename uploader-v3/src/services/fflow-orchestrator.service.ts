@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { FFlow } from '@stombie/retube-core';
 import { ApiService } from './api.service';
 import { FFlowCacheService } from './fflow-cache.service';
 
 // TODO: мб вообще не нужен, перенести все в AppService
 @Injectable()
 export class FFlowOrchestratorService {
+    private readonly logger = new Logger(FFlowOrchestratorService.name);    
+
     constructor(private readonly api: ApiService,
                 private readonly fflowCache: FFlowCacheService) {
     }
@@ -25,9 +28,10 @@ export class FFlowOrchestratorService {
         await this.api.pushToFlow(`${flowUrl}/push`, content);
     }
 
-    async finishFlow(uploadSessionId: string) {
+    async finishFlow(uploadSessionId: string, finishParams: FFlow.Request.Finish) {
+        this.logger.debug(`finishFlow: ${finishParams.savingPath}`);
         const flowUrl = await this.ensureFlow(uploadSessionId);
-        await this.api.finishFlow(`${flowUrl}/finish`);
+        await this.api.finishFlow(`${flowUrl}/finish`, finishParams);
         await this.fflowCache.deleteFlowUrl(uploadSessionId);
     }
 }

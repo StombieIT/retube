@@ -1,3 +1,4 @@
+import { FFlow } from '@stombie/retube-core';
 import * as fs from 'fs/promises';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -33,15 +34,14 @@ export class AppService {
         await fs.rmdir(uploadDir);
     }
 
-    async finishFlow(uploadSessionId: string) {
+    async finishFlow(uploadSessionId: string, { savingPath }: FFlow.FinishParams) {
         await this.fflow.finishFlow(uploadSessionId);
-        const ftpUploadDir = this.path.dashFFlowPath(uploadSessionId);
         const uploadDir = this.path.dashFFlow(uploadSessionId);
         const ftpSession = await this.ftpSessionsOrchestrator.create();
-        await ftpSession.createDir(ftpUploadDir);
+        await ftpSession.createDir(savingPath);
         await ftpSession.uploadFromDir(
             uploadDir,
-            ftpUploadDir,
+            savingPath,
         );
         this.logger.log(`Successfully uploaded files of ${uploadSessionId}`);
         await fs.rmdir(uploadDir, { recursive: true });
