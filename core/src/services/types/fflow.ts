@@ -1,9 +1,18 @@
 export namespace FFlow {
+    export interface FinishParams {
+        savingPath: string;
+    }
+
+    export namespace Request {
+        export interface Finish extends FinishParams {
+        }
+    }
+
     export namespace Response {
         interface BaseResponse {
             status: 'success' | 'error';
             message: string;
-        }     
+        }
 
         export interface Create extends BaseResponse {
             flowUrl: string;
