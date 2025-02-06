@@ -22,9 +22,9 @@ export class AppService implements OnModuleInit {
     private video?: Video;
 
     constructor(private readonly chunkExchange: ChunkExchangeService,
-                @InjectRepository(User) private readonly usersRepository: Repository<User>,
-                @InjectRepository(Video) private readonly videosRepository: Repository<Video>,
-                @InjectRepository(Flow) private readonly flowsRepository: Repository<Flow>,
+                @InjectRepository(User) private readonly users: Repository<User>,
+                @InjectRepository(Video) private readonly videos: Repository<Video>,
+                @InjectRepository(Flow) private readonly flows: Repository<Flow>,
                 @InjectRepository(UploadSession) private readonly uploadSessions: Repository<UploadSession>) {
     }
 
@@ -36,7 +36,7 @@ export class AppService implements OnModuleInit {
             size: 1500,
             content: Buffer.from(Array(1500).fill(1))
         };
-        const users = await this.usersRepository.find();
+        const users = await this.users.find();
         if (!users.length) {
             this.logger.error('No users found');
         }
@@ -46,8 +46,8 @@ export class AppService implements OnModuleInit {
             fs.readFile('/Users/vladislav.yartsev/Desktop/dev/personal/retube/gateway/src/test-video_1.mp4'),
         ]);
         const flows = await Promise.all(files.map(async (file) => {
-            const flow = this.flowsRepository.create();
-            await this.flowsRepository.save(flow);
+            const flow = this.flows.create();
+            await this.flows.save(flow);
             const uploadSession = this.uploadSessions.create({
                 totalBytes: file.length,
                 flow,
@@ -57,7 +57,7 @@ export class AppService implements OnModuleInit {
             return flow;
         }));
         const sessionIds = flows.map(flow => flow.uploadSession.id);
-        this.video = this.videosRepository.create({
+        this.video = this.videos.create({
             title: 'testing',
             description: 'testing description',
             duration: 10,
@@ -65,7 +65,7 @@ export class AppService implements OnModuleInit {
             flows,
         });
         
-        await this.videosRepository.save(this.video);
+        await this.videos.save(this.video);
         const chunksList = files.map(file => {
             const chunkCount = Math.ceil(file.length / MAX_CHUNK_LENGTH);
             const chunks = [];

@@ -15,6 +15,9 @@ export class User {
 
     @Column({ name: 'password_hash' })
     passwordHash!: string;
+
+    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt!: Date;
 }
 
 @Entity({ name: 'upload_sessions' })
