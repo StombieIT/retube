@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { User } from '@stombie/retube-core';
+import { Gateway, User } from '@stombie/retube-core';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,23 +35,29 @@ export class AuthService {
         return newUser;
     }
 
-    async login(email: string, password: string): Promise<OAuthTokens> {
+    async login(email: string, password: string): Promise<Gateway.OAuthTokens> {
         const user = await this.verifyUser(email, password);
-        return this.generateTokens(user.id, user.email);
+        return this.generateTokens(user.id);
     }
 
-    async refreshToken(token: string): Promise<OAuthTokens> {
+    async refreshToken(token: string): Promise<Gateway.OAuthTokens> {
         try {
             const { sub: id, email } = await this.jwt.verifyAsync(token);
-            return this.generateTokens(id, email);
+            return this.generateTokens(id);
         } catch (err) {
             throw new Error(`Invalid refresh token ${token}`);
         }
     }
 
     async verifyUserByToken(token: string) {
-        const { sub: id, email } = await this.jwt.verifyAsync(token);
-        return this.verifyUser(email, id);
+        const { sub: id } = await this.jwt.verifyAsync(token);
+        const user = await this.users.findOneBy({
+            id,
+        });
+        if (!user) {
+            throw new Error('Token is not verified');
+        }
+        return user;
     }
 
     private async verifyUser(email: string, password: string) {
@@ -64,11 +70,11 @@ export class AuthService {
         return user;
     }
 
-    private async generateTokens(userId: string, email: string): Promise<OAuthTokens> {
-        const payload = { sub: userId, email };
+    private async generateTokens(userId: string): Promise<Gateway.OAuthTokens> {
+        const payload = { sub: userId };
         const [refreshToken, accessToken] = await Promise.all([
             this.jwt.signAsync(payload, { expiresIn: this.refreshTokenLifetime }),
-            this.jwt.sign(payload, { expiresIn: this.accessTokenLifetime })
+            this.jwt.signAsync(payload, { expiresIn: this.accessTokenLifetime }),
         ]);
 
         return {

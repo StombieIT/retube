@@ -3,4 +3,8 @@ export interface BaseResponse {
     message: string;
 }
 
+export interface PayloadResponse<T extends {}> extends BaseResponse {
+    payload?: T;
+}
+
 export type Format = 'dash' | 'hls';

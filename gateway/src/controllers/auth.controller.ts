@@ -1,6 +1,6 @@
-import { AuthGuard } from '@/services/auth.guard';
 import { AuthService } from '@/services/auth.service';
-import { Body, Controller, Get, HttpException, Post, UseGuards } from '@nestjs/common';
+import { Gateway } from '@stombie/retube-core';
+import { Body, Controller, HttpException, Post } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
@@ -8,19 +8,35 @@ export class AuthController {
     }
 
     @Post('register')
-    async register(@Body() { email, password }: { email: string, password: string }) {
+    async register(@Body() { email, password }: Gateway.Request.Register): Promise<Gateway.Response.Register> {
         try {
             await this.auth.register(email, password);
-            return this.auth.login(email, password);
+            return {
+                status: 'success',
+                message: 'Successfully registered user',
+            };
         } catch (err) {
-            throw new HttpException('Bred', 500);
+            throw new HttpException({
+                status: 'error',
+                messsage: 'User has already registered',
+            }, 400);
         }
     }
 
-
-    @Get('protected')
-    @UseGuards(AuthGuard)
-    mockProtected() {
-        return { result: 'good' };
+    @Post('login')
+    async login(@Body() { email, password }: Gateway.Request.Login): Promise<Gateway.Response.Login> {
+        try {
+            const tokens = await this.auth.login(email, password);
+            return {
+                status: 'success',
+                message: 'Successfully logged in',
+                payload: tokens,
+            };
+        } catch (err) {
+            throw new HttpException({
+                status: 'error',
+                message: 'Token is invalid',
+            }, 400);
+        }
     }
 }

@@ -10,20 +10,18 @@ export class AuthGuard extends PassportAuthGuard('local') {
     }    
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        // TODO: исправить
         const request = context.switchToHttp().getRequest<Request>();
-        const authHeader = request.headers['Authorization'] as Maybe<string>;
+        const authHeader = request.headers['authorization'];
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             throw new UnauthorizedException('Authorization token required');
         }
         const [, token] = authHeader.split(' ');
         try {
             const user = await this.auth.verifyUserByToken(token);
-            // @ts-ignore
             request.user = user;
             return Boolean(user);
         } catch (err) {
-            throw new UnauthorizedException(err);
+            throw new UnauthorizedException('Token is not valid');
         }
     }
 }

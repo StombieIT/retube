@@ -1,3 +1,5 @@
+import { BaseResponse } from './common';
+
 export namespace FFlow {
     export interface FinishParams {
         savingPath: string;
@@ -9,11 +11,6 @@ export namespace FFlow {
     }
 
     export namespace Response {
-        interface BaseResponse {
-            status: 'success' | 'error';
-            message: string;
-        }
-
         export interface Create extends BaseResponse {
             flowUrl: string;
         }
