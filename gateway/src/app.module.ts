@@ -10,6 +10,7 @@ import { AuthConfig } from './config/auth.config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
+import { AppController } from './controllers/app.controller';
 
 const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
@@ -34,7 +35,7 @@ const DB_ENTITIES = [User, Video, Flow, UploadSession];
             })
         }),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController, AppController],
     providers: [AppService, AuthService, ChunkExchangeService],
 })
 export class AppModule {}
