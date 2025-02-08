@@ -4,6 +4,7 @@ import { Flow, Gateway, IVideoChunk, UploadSession, User, Video } from '@stombie
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChunkExchangeService } from './chunk-exchange.service';
+import { VideoConverterService } from './converters/video.converter';
 
 const MAX_CHUNK_LENGTH = 8192;
 
@@ -25,7 +26,8 @@ export class AppService {
                 @InjectRepository(User) private readonly users: Repository<User>,
                 @InjectRepository(Video) private readonly videos: Repository<Video>,
                 @InjectRepository(Flow) private readonly flows: Repository<Flow>,
-                @InjectRepository(UploadSession) private readonly uploadSessions: Repository<UploadSession>) {
+                @InjectRepository(UploadSession) private readonly uploadSessions: Repository<UploadSession>,
+                private readonly videoConverter: VideoConverterService) {
     }
 
     async createVideo({ title, description, duration, totalBytesList }: Gateway.VideoPayload, owner: User): Promise<Gateway.SmallVideo> {
@@ -50,28 +52,11 @@ export class AppService {
         });
         await this.uploadSessions.save(uploadSessions);
 
-        const smallFlows = uploadSessions.map<Gateway.SmallFlow>(uploadSession => {
-            const smallUploadSession: Gateway.SmallUploadSession = {
-                id: uploadSession.id,
-                totalBytes: uploadSession.totalBytes,
-                uploadedBytes: uploadSession.uploadedBytes,
-            };
-
-            const { flow } = uploadSession;
-            const smallFlow: Gateway.SmallFlow = {
-                id: flow.id,
-                status: flow.status,
-                uploadSession: smallUploadSession,
-            };
-            return smallFlow;
+        flows.forEach((flow, idx) => {
+            flow.uploadSession = uploadSessions[idx];
         });
-        return {
-            id: video.id,
-            title: video.title,
-            description: video.description,
-            duration: video.duration,
-            flows: smallFlows,
-        };
+        video.flows = flows;
+        return this.videoConverter.toSmallVideo(video);
     }
 
     // async onModuleInit() {

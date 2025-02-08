@@ -25,7 +25,7 @@ export namespace Gateway {
         uploadSession: SmallUploadSession;
     }
 
-    export interface SmallVideo extends VideoBase, Pick<Video, 'id'> {
+    export interface SmallVideo extends VideoBase, Pick<Video, 'id' | 'status'> {
         flows: SmallFlow[];
     }
 

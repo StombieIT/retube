@@ -11,6 +11,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { AppController } from './controllers/app.controller';
+import { UploadSessionConverterService } from './services/converters/upload-session.converter';
+import { FlowConverterService } from './services/converters/flow.converter';
+import { VideoConverterService } from './services/converters/video.converter';
 
 const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
@@ -36,6 +39,9 @@ const DB_ENTITIES = [User, Video, Flow, UploadSession];
         }),
     ],
     controllers: [AuthController, AppController],
-    providers: [AppService, AuthService, ChunkExchangeService],
+    providers: [
+        AppService, AuthService, ChunkExchangeService,
+        UploadSessionConverterService, FlowConverterService, VideoConverterService,
+    ],
 })
 export class AppModule {}
