@@ -1,7 +1,6 @@
 import { Repository } from 'typeorm';
-import * as fs from 'fs/promises';
-import { Flow, Gateway, IVideoChunk, UploadSession, User, Video } from '@stombie/retube-core';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Flow, Gateway, IVideoChunk, NoRightsError, NotFoundError, UploadSession, User, Video } from '@stombie/retube-core';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChunkExchangeService } from './chunk-exchange.service';
 import { VideoConverterService } from './converters/video.converter';
@@ -56,6 +55,53 @@ export class AppService {
             flow.uploadSession = uploadSessions[idx];
         });
         video.flows = flows;
+        return this.videoConverter.toSmallVideo(video);
+    }
+
+    async upload(chunk: IVideoChunk, owner: User) {
+        const { sessionId } = chunk;
+        const uploadSession = await this.uploadSessions.findOne({
+            where: {
+                id: sessionId,
+            },
+            relations: {
+                flow: {
+                    video: {
+                        user: true,
+                    },
+                },
+            },
+        });
+        
+        if (!uploadSession) {
+            throw new NotFoundError(`Session ${sessionId} not found`);
+        }
+        const { flow } = uploadSession;
+        const { video } = flow;
+        const { user } = video;
+        if (user.id !==  owner.id) {
+            throw new NoRightsError('Session owner mismatches');
+        }
+
+        await this.chunkExchange.push(chunk);
+    }
+
+    async state(videoId: string): Promise<Gateway.SmallVideo> {
+        const video = await this.videos.findOne({
+            where: {
+                id: videoId,
+            },
+            relations: {
+                flows: {
+                    uploadSession: true,
+                },
+            },
+        });
+
+        if (!video) {
+            throw new NotFoundError(`Video ${videoId} is not found`);
+        }
+
         return this.videoConverter.toSmallVideo(video);
     }
 

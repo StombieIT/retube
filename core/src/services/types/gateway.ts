@@ -1,5 +1,5 @@
 import { Flow, UploadSession, Video } from '../../db/entities';
-import { BaseResponse, PayloadResponse } from './common';
+import { BaseResponse, Format, PayloadResponse } from './common';
 
 export namespace Gateway {
     interface UserPayload {
@@ -22,7 +22,8 @@ export namespace Gateway {
     export type SmallUploadSession = Pick<UploadSession, 'id' | 'totalBytes' | 'uploadedBytes'>
 
     export interface SmallFlow extends FlowBase {
-        uploadSession: SmallUploadSession;
+        uploadSession?: SmallUploadSession;
+        distributionUrls?: Record<Format, string>;
     }
 
     export interface SmallVideo extends VideoBase, Pick<Video, 'id' | 'status'> {
@@ -39,5 +40,7 @@ export namespace Gateway {
         export type Register = BaseResponse;
         export type Login = PayloadResponse<OAuthTokens>;
         export type CreateVideo = SmallVideo;
+        export type Upload = BaseResponse;
+        export type State = PayloadResponse<SmallVideo>;
     }
 }

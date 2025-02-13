@@ -1,6 +1,6 @@
 export interface BaseResponse {
     status: 'success' | 'error';
-    message: string;
+    message?: string;
 }
 
 export interface PayloadResponse<T extends {}> extends BaseResponse {
