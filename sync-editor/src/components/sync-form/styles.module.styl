@@ -1,0 +1,47 @@
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.flows {
+    flex-basis: 400px;
+    width: 100%;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    column-gap: 20px;
+    row-gap: @column-gap;
+
+    :global(.candidate) {
+        flex-basis: 350px;
+        flex-grow: 1;
+    }
+}
+
+.buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.button {
+    border: none;
+    cursor: pointer;
+    padding: 15px 30px;
+    background-color: var(--c-main);
+    border-radius: 15px;
+    color: #ffffff;
+    transition: .15s transform, .15s opacity;
+
+    &:not([disabled]):active {
+        transform: scale(0.98);
+    }
+
+    &[disabled] {
+        cursor: default;
+        opacity: 0.7;
+    }
+}

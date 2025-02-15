@@ -1,0 +1,12 @@
+.wrapper {
+    margin: 0 auto;
+    min-height: 100vh;
+    max-width: 900px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.themeCommon {
+    --c-main: #00a2e7;
+}

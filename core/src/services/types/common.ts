@@ -4,7 +4,7 @@ export interface BaseResponse {
 }
 
 export interface PayloadResponse<T extends {}> extends BaseResponse {
-    payload?: T;
+    payload: T;
 }
 
 export type Format = 'dash' | 'hls';

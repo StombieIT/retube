@@ -48,6 +48,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             uploadedBytes: updatedUploadedBytes,
         });
         if (updatedUploadedBytes === uploadSession.totalBytes) {
+            console.log('here');
             const { flow } = uploadSession;
             const { video } = flow;
             await this.fflowOrchestrator.finishFlow(sessionId, {

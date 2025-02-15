@@ -1,0 +1,58 @@
+.candidateWrapper {
+    position: relative;
+    user-select: none;
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 200px
+}
+
+.dropArea {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.3;
+    border: 2px dashed var(--c-main);
+    border-radius: 20px;
+    transition: .15s opacity;
+
+    &:hover,
+    &.__dragOver {
+        opacity: 1;
+    }
+
+    &.__disabled {
+        opacity: 0.3;
+    }
+}
+
+.videoWrapper {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.video {
+    object-fit: cover;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.deleteButton {
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: @top;
+    z-index 2;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.input {
+    display: none;
+}

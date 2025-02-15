@@ -83,7 +83,7 @@ export class AppService {
             throw new NoRightsError('Session owner mismatches');
         }
 
-        await this.chunkExchange.push(chunk);
+        this.chunkExchange.push(chunk);
     }
 
     async state(videoId: string): Promise<Gateway.SmallVideo> {

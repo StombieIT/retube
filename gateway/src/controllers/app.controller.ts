@@ -14,15 +14,19 @@ export class AppController {
     @UseGuards(AuthGuard)
     @Post('create-video')
     async createVideo(@Req() request: Request,
-                      @Body() { title, description, duration, totalBytesList }: Gateway.Request.CreateVideo) {
+                      @Body() { title, description, duration, totalBytesList }: Gateway.Request.CreateVideo): Promise<Gateway.Response.CreateVideo> {
         try {
             const { user } = request;
-            return this.app.createVideo({
+            const video = await this.app.createVideo({
                 title,
                 description,
                 duration,
                 totalBytesList,
             }, user);
+            return {
+                status: 'success',
+                payload: video,
+            };
         } catch (error) {
             throw new HttpException(
                 {

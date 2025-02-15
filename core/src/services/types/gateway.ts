@@ -39,7 +39,7 @@ export namespace Gateway {
     export namespace Response {
         export type Register = BaseResponse;
         export type Login = PayloadResponse<OAuthTokens>;
-        export type CreateVideo = SmallVideo;
+        export type CreateVideo = PayloadResponse<SmallVideo>;
         export type Upload = BaseResponse;
         export type State = PayloadResponse<SmallVideo>;
     }
