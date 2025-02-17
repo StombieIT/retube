@@ -5,6 +5,8 @@ import { flowCandidatesReducer } from './flow-candidates/slice';
 import { authReducer } from './auth/slice';
 import { videoReducer } from './video/slice';
 import { stageReducer } from './stage';
+import { uploadReducer } from './upload/slice';
+import { distributionReducer } from './distribution/slice';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -14,6 +16,8 @@ export const store = configureStore({
         auth: authReducer,
         video: videoReducer,
         stage: stageReducer,
+        upload: uploadReducer,
+        distribution: distributionReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

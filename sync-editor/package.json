@@ -15,7 +15,8 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "stylus": "^0.64.0",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "vite-plugin-svgr": "^4.3.0"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",

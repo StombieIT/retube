@@ -17,6 +17,7 @@ export const SyncForm: FC = () => {
     const flowsContent = candidates.map(candidateId => (
         <Candidate
             key={candidateId}
+            video={videoManager.getVideoById(candidateId)}
             onVideoDropped={video => dispatch(addCandidateVideoAction({ candidateId, video }))}
             onDelete={() => dispatch(deleteCandidateByIdAction(candidateId))}
         />

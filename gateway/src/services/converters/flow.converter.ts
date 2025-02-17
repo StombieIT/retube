@@ -7,10 +7,15 @@ export class FlowConverterService {
     constructor(private readonly uploadSessionConverter: UploadSessionConverterService) {}
     
     toSmallFlow(flow: Flow): Gateway.SmallFlow {
-        return {
+        const smallFlow: Gateway.SmallFlow = {
             id: flow.id,
             status: flow.status,
-            uploadSession: this.uploadSessionConverter.toSmallUploadSession(flow.uploadSession),
         };
+
+        if (flow.uploadSession) {
+            smallFlow.uploadSession = this.uploadSessionConverter.toSmallUploadSession(flow.uploadSession);
+        }
+
+        return smallFlow;
     }
 }

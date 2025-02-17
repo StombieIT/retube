@@ -1,0 +1,33 @@
+$offset = 130;
+
+.loader {
+    display: block;
+    stroke: var(--loader-stroke-color, #ffffff);
+    animation: rounding linear 5s infinite;
+
+    circle {
+        stroke-dasharray: $offset;
+        stroke-dashoffset: $offset;
+        animation: dash 1.5s infinite;
+    }
+}
+
+@keyframes dash {
+    0%, 100% {
+        stroke-dashoffset: $offset;
+    }
+
+    50% {
+        stroke-dashoffset: var(--loader-progress);
+    }
+}
+
+@keyframes rounding {
+    0%, 100% {
+        transform: rotate(0);
+    }
+
+    50% {
+        transform: rotate(360deg);
+    }
+}

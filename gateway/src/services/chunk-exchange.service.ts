@@ -76,6 +76,7 @@ export class ChunkExchangeService implements OnModuleInit {
     }
 
     private handleReply = (message: Message) => {
+        this.channel.ack(message);
         const { headers } = message.properties;
         if (!headers ||
             typeof headers['x-correlation-id'] !== 'string' ||

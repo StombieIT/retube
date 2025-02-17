@@ -2,14 +2,21 @@ import { FC, useEffect, useState } from 'react';
 
 import css from './styles.module.styl';
 import cn from 'classnames';
+import { Loader } from '../loader';
 
 export interface CandidateProps {
+    video?: Blob;
     onVideoDropped?: (video: Blob) => void;
     onDelete?: () => void;
+    progress?: number;
 }
 
-export const Candidate: FC<CandidateProps> = ({ onVideoDropped, onDelete }) => {
-    const [video, setVideo] = useState<Maybe<Blob>>();
+export const Candidate: FC<CandidateProps> = ({
+    video,
+    onVideoDropped,
+    onDelete,
+    progress,
+}) => {
     const [videoUrl, setVideoUrl] = useState<Maybe<string>>();
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
     const isUploadingDisabled = Boolean(video);
@@ -22,7 +29,7 @@ export const Candidate: FC<CandidateProps> = ({ onVideoDropped, onDelete }) => {
         }
         
         const video = videoFiles[0];
-        setVideo(video);
+        onVideoDropped?.(video);
     };
 
     const onDrop = (evt: React.DragEvent<HTMLLabelElement>) => {
@@ -32,14 +39,8 @@ export const Candidate: FC<CandidateProps> = ({ onVideoDropped, onDelete }) => {
         if (isUploadingDisabled) {
             return;
         }
-        const videoFiles = Array.from(evt.dataTransfer.files)
-            .filter(file => file.type.startsWith('video/'));
-        if (!videoFiles.length) {
-            return;
-        }
-        
-        const video = videoFiles[0];
-        setVideo(video);
+
+        handleFileList(evt.dataTransfer.files);
     };
 
     const onDragOver = (evt: React.DragEvent<HTMLLabelElement>) => {
@@ -79,11 +80,16 @@ export const Candidate: FC<CandidateProps> = ({ onVideoDropped, onDelete }) => {
         }
     );
 
+    const isWaitingUpload = !video && Boolean(onVideoDropped);
+    const isInProgress = typeof progress == 'number';
+
     return (
         <div className={cn(css.candidateWrapper, 'candidate')}>
-            <button type="button" className={css.deleteButton} onClick={onDelete}>
-                Удалить
-            </button>
+            {onVideoDropped && (
+                <button type="button" className={css.deleteButton} onClick={onDelete}>
+                    Удалить
+                </button>
+            )}
             {videoUrl && (
                 <div className={css.videoWrapper}>
                     <video
@@ -97,20 +103,30 @@ export const Candidate: FC<CandidateProps> = ({ onVideoDropped, onDelete }) => {
                     </video>
                 </div>
             )}
-            <label
-                className={dropAreaClasses}
-                onDragOver={onDragOver}
-                onDragLeave={onDragLeave}
-                onDrop={onDrop}
-            >
-                <input
-                    type="file"
-                    className={css.input}
-                    onChange={onInputChange}
-                    disabled={isUploadingDisabled}
-                />
-                Загрузите видео
-            </label>
+            {isInProgress && (
+                <div className={css.loaderContainer}>
+                    <Loader
+                        className={css.loader}
+                        progress={progress}
+                    />
+                </div>
+            )}
+            {isWaitingUpload && (
+                <label
+                    className={dropAreaClasses}
+                    onDragOver={onDragOver}
+                    onDragLeave={onDragLeave}
+                    onDrop={onDrop}
+                >
+                    <input
+                        type="file"
+                        className={css.input}
+                        onChange={onInputChange}
+                        disabled={isUploadingDisabled}
+                    />
+                    Загрузите видео
+                </label>
+            )}
         </div>
     );
 };

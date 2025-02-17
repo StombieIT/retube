@@ -4,9 +4,12 @@ import cn from 'classnames';
 import { selectIsAuthenticated } from '../../store/auth/selectors';
 import { SyncForm } from '../sync-form';
 import { selectStage } from '../../store/stage/selectors';
+import { Loading } from '../loading';
 import { Stage } from '../../types/app';
 
 import css from './styles.module.css';
+import { Uploading } from '../uploading';
+import { Distribution } from '../distribution';
 
 export const App: FC = () => {    
     const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -20,6 +23,12 @@ export const App: FC = () => {
         switch (stage) {
             case Stage.SYNCHRONIZING:
                 return <SyncForm />;
+            case Stage.LOADING:
+                return <Loading />;
+            case Stage.UPLOADING:
+                return <Uploading />;
+            case Stage.DISTRIBUTION:
+                return <Distribution />;
         }
     })();
 

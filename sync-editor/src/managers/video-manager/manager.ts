@@ -6,7 +6,6 @@ class VideoManager extends EventTarget {
     }
 
     addVideo(id: string, video: Blob) {
-        console.log('here');
         this.map.set(id, video);
         this.emitUpdate();
     }
@@ -18,6 +17,16 @@ class VideoManager extends EventTarget {
 
     getVideoById(id: string) {
         return this.map.get(id);
+    }
+
+    transferVideo(fromId: string, toId: string) {
+        const video = this.map.get(fromId);
+        if (!video) {
+            return;
+        }
+        this.map.set(toId, video);
+        this.map.delete(fromId);
+        this.emitUpdate();
     }
 
     isVideoExistsById(id: string) {

@@ -16,5 +16,5 @@ export default {
         typescript({
             outDir: 'dist'
         }),
-    ]
+    ],
 };
