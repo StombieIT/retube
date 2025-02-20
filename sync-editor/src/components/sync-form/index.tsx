@@ -5,9 +5,10 @@ import { selectFlowCandidates } from '../../store/flow-candidates/selectors';
 import { addCandidate, addCandidateVideoAction, deleteCandidateByIdAction } from '../../store/flow-candidates/slice';
 import { Candidate } from '../candidate';
 import { useVideoManager } from '../../managers/video-manager/react';
+import { startUpload } from '../../store/shared/actions';
+import { Button } from '../button';
 
 import css from './styles.module.styl';
-import { startUpload } from '../../store/shared/actions';
 
 export const SyncForm: FC = () => {
     const candidates = useSelector(selectFlowCandidates);
@@ -41,18 +42,18 @@ export const SyncForm: FC = () => {
                 </div>
             )}
             <div className={css.buttons}>
-                <button type="button" className={css.button} onClick={onAddFlow}>
+                <Button type="button" onClick={onAddFlow}>
                     Добавить поток
-                </button>
+                </Button>
                 {Boolean(candidates.length) && (
-                    <button
+                    <Button
                         type="button"
                         className={css.button}
                         onClick={onUpload}
                         disabled={!allCandidatesHaveVideo}
                     >
                         Загрузить
-                    </button>
+                    </Button>
                 )}
             </div>
         </div>

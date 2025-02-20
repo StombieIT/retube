@@ -14,6 +14,7 @@ import { AppController } from './controllers/app.controller';
 import { UploadSessionConverterService } from './services/converters/upload-session.converter';
 import { FlowConverterService } from './services/converters/flow.converter';
 import { VideoConverterService } from './services/converters/video.converter';
+import { UserConverterService } from './services/converters/user.converter';
 
 const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
@@ -41,7 +42,7 @@ const DB_ENTITIES = [User, Video, Flow, UploadSession];
     controllers: [AuthController, AppController],
     providers: [
         AppService, AuthService, ChunkExchangeService,
-        UploadSessionConverterService, FlowConverterService, VideoConverterService,
+        UploadSessionConverterService, FlowConverterService, VideoConverterService, UserConverterService,
     ],
 })
 export class AppModule {}

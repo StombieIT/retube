@@ -1,4 +1,4 @@
-import { Flow, UploadSession, Video } from '../../db/entities';
+import { Flow, UploadSession, User, Video } from '../../db/entities';
 import { BaseResponse, Format, PayloadResponse } from './common';
 
 export namespace Gateway {
@@ -18,6 +18,8 @@ export namespace Gateway {
     export interface VideoPayload extends VideoBase {
         totalBytesList: number[];
     }
+
+    export type SmallUser = Pick<User, 'id' | 'email' | 'createdAt'>;
 
     export type SmallUploadSession = Pick<UploadSession, 'id' | 'totalBytes' | 'uploadedBytes'>
 
@@ -42,5 +44,6 @@ export namespace Gateway {
         export type CreateVideo = PayloadResponse<SmallVideo>;
         export type Upload = BaseResponse;
         export type State = PayloadResponse<SmallVideo>;
+        export type Me = PayloadResponse<SmallUser>;
     }
 }

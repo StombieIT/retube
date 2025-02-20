@@ -6,18 +6,15 @@ import { SyncForm } from '../sync-form';
 import { selectStage } from '../../store/stage/selectors';
 import { Loading } from '../loading';
 import { Stage } from '../../types/app';
-
-import css from './styles.module.css';
 import { Uploading } from '../uploading';
 import { Distribution } from '../distribution';
+import { AuthModal } from '../auth-modal';
+
+import css from './styles.module.css';
 
 export const App: FC = () => {    
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const stage = useSelector(selectStage);
-
-    if (!isAuthenticated) {
-        return null;
-    }
 
     const content = (() => {
         switch (stage) {
@@ -35,6 +32,9 @@ export const App: FC = () => {
     return (
         <div className={cn(css.wrapper, css.themeCommon)}>
             {content}
+            {!isAuthenticated && (
+                <AuthModal />
+            )}
         </div>
     );
 };

@@ -12,6 +12,26 @@ export class AppController {
     }
 
     @UseGuards(AuthGuard)
+    @Get('me')
+    async me(@Req() request: Request): Promise<Gateway.Response.Me> {
+        try {
+            const { user } = request;
+            return {
+                status: 'success',
+                payload: user,
+            };
+        } catch (error) {
+            throw new HttpException(
+                {
+                    status: 'error',
+                    message: error.message, 
+                },
+                HttpStatus.BAD_GATEWAY,
+            );
+        }
+    }
+
+    @UseGuards(AuthGuard)
     @Post('create-video')
     async createVideo(@Req() request: Request,
                       @Body() { title, description, duration, totalBytesList }: Gateway.Request.CreateVideo): Promise<Gateway.Response.CreateVideo> {

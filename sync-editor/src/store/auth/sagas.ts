@@ -1,15 +1,64 @@
-import { call, put } from 'redux-saga/effects';
+import { takeLatest, call, fork, put, all } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
 import { AxiosResponse } from 'axios';
 import { Gateway } from '@stombie/retube-core';
-import { updateTokens } from './slice';
 import api from '../../api';
+import { login, register, reset, updateTokens } from './slice';
+import { AuthCredentials, isOAuthTokens, UpdateTokensPayload } from './types';
 
-const AUTH_CREDENTIALS = {
-    email: '12bredik@asass.ru',
-    password: 'aga',
-};
+const {
+    VITE_TOKENS_STORAGE_KEY = '_tokens',
+} = import.meta.env;
+
+function* authInit() {
+    const tokensStringified: string | null = yield call([localStorage, localStorage.getItem], VITE_TOKENS_STORAGE_KEY);
+    if (!tokensStringified) {
+        return;
+    }
+    let tokens: UpdateTokensPayload;
+    try {
+        const tokensObj = JSON.parse(tokensStringified);
+        if (!isOAuthTokens(tokensObj)) {
+            throw new Error('Invalid tokens value in storage');
+        }
+        tokens = tokensObj;
+    } catch (err) {
+        return;
+    }
+    yield put(updateTokens(tokens));
+
+    try {
+        yield call(api.get, '/me');
+    } catch (error) {
+        yield put(reset());
+    }
+}
+
+function* loginSaga(action: PayloadAction<AuthCredentials>) {
+    try {
+        const { data: { payload: tokens }, }: AxiosResponse<Gateway.Response.Login>
+            = yield call(api.post, `/auth/login`, action.payload);
+        const tokensStringified = JSON.stringify(tokens);
+        yield call([localStorage, localStorage.setItem], VITE_TOKENS_STORAGE_KEY, tokensStringified);
+        yield put(updateTokens(tokens));
+    } catch (error) {
+        // ignore
+    }
+}
+
+function* registerSaga(action: PayloadAction<AuthCredentials>) {
+    try {
+        yield call(api.post, '/auth/register', action.payload);
+    } catch (error) {
+        // ignore
+        // TODO: add notification
+    }
+}
 
 export function* authRootSaga() {
-    const { data: { payload: tokens } }: AxiosResponse<Gateway.Response.Login> = yield call(api.post, '/auth/login', AUTH_CREDENTIALS);
-    yield put(updateTokens(tokens!));
+    yield all([
+        fork(authInit),
+        takeLatest(login.type, loginSaga),
+        takeLatest(register.type, registerSaga),
+    ]);
 }

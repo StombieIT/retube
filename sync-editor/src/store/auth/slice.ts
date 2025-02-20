@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { OAuthTokens, UpdateTokensPayload } from './types';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AuthCredentials, OAuthTokens, UpdateTokensPayload } from './types';
 
 export type AuthState = OAuthTokens | null;
 
@@ -26,5 +26,7 @@ const authSlice = createSlice({
     },
 });
 
+export const login = createAction<AuthCredentials>('auth/login');
+export const register = createAction<AuthCredentials>('auth/register');
 export const { updateTokens, reset } = authSlice.actions;
 export const authReducer = authSlice.reducer;

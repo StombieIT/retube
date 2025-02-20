@@ -26,22 +26,3 @@
     display: flex;
     gap: 20px;
 }
-
-.button {
-    border: none;
-    cursor: pointer;
-    padding: 15px 30px;
-    background-color: var(--c-main);
-    border-radius: 15px;
-    color: #ffffff;
-    transition: .15s transform, .15s opacity;
-
-    &:not([disabled]):active {
-        transform: scale(0.98);
-    }
-
-    &[disabled] {
-        cursor: default;
-        opacity: 0.7;
-    }
-}
