@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/node": "^22.13.4",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react-swc": "^3.7.2",
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
+    "axios": "^1.7.9",
     "dashjs": "^4.7.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

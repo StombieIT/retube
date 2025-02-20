@@ -30,6 +30,7 @@ export namespace Gateway {
 
     export interface SmallVideo extends VideoBase, Pick<Video, 'id' | 'status'> {
         flows: SmallFlow[];
+        uploadedAt?: number;
     }
 
     export namespace Request {

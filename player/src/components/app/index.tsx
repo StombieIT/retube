@@ -3,8 +3,6 @@ import dashjs from 'dashjs';
 
 import css from './styles.module.styl';
 
-console.log('css', css);
-
 const MANIFEST_PATH = '/testing/manifest.mpd';
 
 export const App: FunctionComponent = () => {
