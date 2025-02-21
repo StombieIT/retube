@@ -15,6 +15,7 @@ import { UploadSessionConverterService } from './services/converters/upload-sess
 import { FlowConverterService } from './services/converters/flow.converter';
 import { VideoConverterService } from './services/converters/video.converter';
 import { UserConverterService } from './services/converters/user.converter';
+import { HolderConfig } from './config/holder.config';
 
 const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
@@ -29,14 +30,14 @@ const DB_ENTITIES = [User, Video, Flow, UploadSession];
         TypeOrmModule.forFeature(DB_ENTITIES),
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [AmqpConfig, RedisConfig, AuthConfig],
+            load: [AmqpConfig, RedisConfig, AuthConfig, HolderConfig],
         }),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 secret: configService.get<string>('auth.jwtSecret'),
-            })
+            }),
         }),
     ],
     controllers: [AuthController, AppController],

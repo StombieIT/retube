@@ -7,7 +7,8 @@ config();
 
 const {
     APP_PORT = 4080,
-    SYNC_EDITOR_ORIGIN = 'http://localhost:5445'
+    SYNC_EDITOR_ORIGIN = 'http://localhost:5445',
+    PLAYER_ORIGIN = 'http://localhost:3000',
 } = process.env;
 
 async function bootstrap() {
@@ -16,6 +17,7 @@ async function bootstrap() {
     app.enableCors({
         origin: [
             SYNC_EDITOR_ORIGIN,
+            PLAYER_ORIGIN,
         ],
         methods: [
             'GET',

@@ -3,6 +3,7 @@ import { DistributedFlow, DistributedVideo } from './types'
 
 export interface VideoState extends Omit<DistributedVideo, 'id' | 'uploadedAt'> {
     id: string | null;
+    mainFlowId: string | null;
     flowIds: string[];
     flowById: Record<string, DistributedFlow>;
     uploadedAt: number | null;
@@ -10,6 +11,7 @@ export interface VideoState extends Omit<DistributedVideo, 'id' | 'uploadedAt'> 
 
 const initialState: VideoState = {
     id: null,
+    mainFlowId: null,
     title: '',
     description: '',
     flowIds: [],
@@ -56,8 +58,12 @@ const videoSlice = createSlice({
         setUploadedAt(state, action: PayloadAction<number | null>) {
             state.uploadedAt = action.payload;
         },
+
+        setMainFlowId(state, action: PayloadAction<string | null>) {
+            state.mainFlowId = action.payload;
+        },
     },
 });
 
-export const { updateFlows, setTitle, setDescription, setId, setUploadedAt } = videoSlice.actions;
+export const { updateFlows, setTitle, setDescription, setId, setUploadedAt, setMainFlowId } = videoSlice.actions;
 export const videoReducer = videoSlice.reducer;
