@@ -1,11 +1,60 @@
 .container {
+    background-color: #000000;
     min-height: 100vh;
 }
 
-.slot {
+.regularSlots {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-top: 30px;
+    display: flex;
+    gap: 20px;
+    z-index: 3;
+    transition: .3s transform, .3s opacity;
 
-    &.__main {
+    &.__hidden {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+}
+
+.slot {
+    position: relative;
+    border: 2px solid #ffffff;
+    border-radius: 15px;
+    max-height: 150px;
+    overflow: hidden;
+
+    .button {
+        display: block;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
         position: absolute;
-        inset: 0;    
+        inset: 0;
+        z-index: 4;
+    }
+}
+
+.mainSlot {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+.controlsWrapper {
+    position: absolute;
+    z-index: 3;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 20px 15px 20px;
+    transition: .3s transform, .3s opacity;
+
+    &.__hidden {
+        transform: translateY(100%);
+        opacity: 0;
     }
 }

@@ -4,6 +4,8 @@ import { DistributedFlow } from './types';
 export const selectFlowById = (flowId: string) => (state: RootState) =>
     state.video.flowById[flowId];
 
+export const selectFlowIds = (state: RootState) => state.video.flowIds;
+
 export const selectFlows = (state: RootState): DistributedFlow[] => {
     const flowIds = state.video.flowIds;
 
