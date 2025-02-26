@@ -8,6 +8,7 @@ import css from './styles.module.styl';
 import { selectPlayerStatus } from '../../store/player/selectors';
 import { PlayerStatus } from '../../types/player';
 import { pause, play } from '../../store/shared/actions';
+import { TimeRange } from '../range/time-range';
 
 interface ButtonOptions {
     icon?: ReactNode;
@@ -39,7 +40,8 @@ export const Controls: FC = () => {
     }, [status]);
 
     return (
-        <div className={css.controls}>
+        <div className={css.wrapper}>
+            <TimeRange />
             <div className={css.buttons}>
                 <button
                     type="button"

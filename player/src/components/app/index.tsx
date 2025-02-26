@@ -6,9 +6,10 @@ import { Slot } from '../slot';
 import { Controls } from '../controls';
 import { setStatus, setTime } from '../../store/player/slice';
 import { PlayerStatus } from '../../types/player';
+import { selectPlayerStatus } from '../../store/player/selectors';
+import { selectIsControlsHideable } from '../../store/config/selectors';
 
 import css from './styles.module.styl';
-import { selectPlayerStatus } from '../../store/player/selectors';
 
 const MANIFEST_PATH = '/testing/manifest.mpd';
 
@@ -16,6 +17,7 @@ export const App: FunctionComponent = () => {
     const status = useSelector(selectPlayerStatus);
     const flows = useSelector(selectFlows);
     const mainFlowId = useSelector(selectMainFlowId);
+    const isControlsHideable = useSelector(selectIsControlsHideable);
     const dispatch = useDispatch();
     const [lastWasTouched, setLastWasTouched] = useState<number>(0);
     const [isControlsVisible, setIsControlsVisible] = useState<boolean>(true);
@@ -92,14 +94,7 @@ export const App: FunctionComponent = () => {
         return (
             <>
                 {Boolean(regularSlots.length) && (
-                    <div
-                    className={cn(
-                        css.regularSlots,
-                        {
-                            [css.__hidden]: !isControlsVisible,
-                        }
-                    )}
-                    >
+                    <div className={css.regularSlots}>
                         {regularSlots}
                     </div>
                 )}
@@ -111,7 +106,7 @@ export const App: FunctionComponent = () => {
     const controlsWrapperClasses = cn(
         css.controlsWrapper,
         {
-            [css.__hidden]: !isControlsVisible,
+            [css.__hidden]: !isControlsVisible && isControlsHideable,
         }
     );
 

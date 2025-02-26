@@ -5,6 +5,7 @@ import { videoReducer } from './video/slice';
 import { errorReducer } from './error/slice';
 import { slotControlReducer } from './slot-control/slice';
 import { playerReducer } from './player/slice';
+import { configReducer } from './config/slice';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -14,6 +15,7 @@ export const store = configureStore({
         error: errorReducer,
         slotControl: slotControlReducer,
         player: playerReducer,
+        config: configReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
