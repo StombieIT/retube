@@ -31,6 +31,8 @@ export const Distribution: FC = () => {
                     <Copy />
                 </button>
             </div>
+            <iframe allowFullScreen src={playerUrl} className={css.player}>
+            </iframe>
         </main>
     );
 };
