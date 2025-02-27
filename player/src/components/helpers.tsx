@@ -1,5 +1,5 @@
-export function getProgressByEvent(evt: React.MouseEvent<HTMLDivElement>) {
-    const progressRect = evt.currentTarget.getBoundingClientRect();
+export function getProgressByEvent(evt: React.MouseEvent<HTMLElement> | MouseEvent, element?: HTMLElement) {
+    const progressRect = (element || evt.currentTarget as HTMLElement).getBoundingClientRect();
     const progressLeft = progressRect.left;
     const progressWidth = progressRect.width;
     const progressInPx = evt.clientX - progressLeft;

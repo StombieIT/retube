@@ -11,6 +11,7 @@ export const TimeRange: FC = () => {
     const duration = useSelector(selectDuration);
     const [seek, setSeek] = useState<number>(0);
     const [desiredProgress, setDesiredProgress] = useState<number | null>(null);
+    const [isMouseEnter, setIsMouseEnter] = useState<boolean>(false);
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
     const dispatch = useDispatch();
 
@@ -22,32 +23,46 @@ export const TimeRange: FC = () => {
         }
     }, [isMouseDown, currentTime]);
 
-    const onMouseMove = useCallback((evt: React.MouseEvent<HTMLDivElement>) => {
-        const progress = Math.round(getProgressByEvent(evt));
-        setSeek(progress);
+    const onMouseMove = useCallback((evt: MouseEvent, element: HTMLElement) => {
+        const progress = Math.max(
+            0,
+            Math.min(Math.round(getProgressByEvent(evt, element)), 100),
+        );
+        setSeek(isMouseEnter ? progress : 0);
         if (isMouseDown) {
             setDesiredProgress(progress);
         }
-    }, [isMouseDown]);
+    }, [isMouseDown, isMouseEnter]);
 
     const onMouseLeave = useCallback((evt: React.MouseEvent<HTMLDivElement>) => {
+        setIsMouseEnter(false);
         setSeek(0);
     }, []);
 
-    const onMouseUp = useCallback((evt: React.MouseEvent<HTMLDivElement>) => {
-        const progress = getProgressByEvent(evt);
-        dispatch(doSeek(round(duration * progress / 100, 2)));
-        setIsMouseDown(false);
-    }, [duration]);
+    const onMouseUp = useCallback((evt: MouseEvent, element: HTMLElement) => {
+        if (isMouseEnter) {
+            const progress = Math.max(
+                0,
+                Math.min(getProgressByEvent(evt, element), 100),
+            );
+            dispatch(doSeek(round(duration * progress / 100, 2)));
+            setIsMouseDown(false);
+        }
+    }, [isMouseEnter, duration]);
 
     const onMouseDown = useCallback(() => {
         setIsMouseDown(true);
+    }, []);
+
+    const onMouseEnter = useCallback(() => {
+        setIsMouseEnter(true);
     }, []);
 
     return (
         <Range
             fact={relativeProgress}
             desirable={seek}
+            onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}

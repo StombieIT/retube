@@ -7,13 +7,17 @@ interface PlayerState {
     currentTime: number;
     duration: number;
     isFullScreenOpened: boolean;
+    isMuted: boolean;
+    volume: number;
 }
 
 const initialState: PlayerState = {
     status: PlayerStatus.PAUSED,
     currentTime: 0,
     duration: 0,
+    volume: 50,
     isFullScreenOpened: false,
+    isMuted: false,
 };
 
 const playerSlice = createSlice({
@@ -32,12 +36,23 @@ const playerSlice = createSlice({
             state.duration = action.payload;
         },
 
+        setVolume(state, action: PayloadAction<number>) {
+            state.volume = action.payload;
+        },
+
         setIsFullScreenOpened(state, action: PayloadAction<boolean>) {
             state.isFullScreenOpened = action.payload;
+        },
+
+        setIsMuted(state, action: PayloadAction<boolean>) {
+            state.isMuted = action.payload;
         },
     },
 });
 
 export const playerReducer = playerSlice.reducer;
-export const { setStatus, setCurrentTime, setDuration, setIsFullScreenOpened } = playerSlice.actions;
+export const {
+    setStatus, setCurrentTime, setDuration,
+    setVolume, setIsFullScreenOpened, setIsMuted,
+} = playerSlice.actions;
 export const setTime = createAction<SetTimePayload>('player/setTime');

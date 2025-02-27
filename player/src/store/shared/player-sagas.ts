@@ -1,15 +1,16 @@
-import { all, call, fork, put, select, take, takeLatest } from 'redux-saga/effects';
+import { all, call, fork, put, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setMainFlowId, updateFlows } from '../video/slice';
 import { DistributedFlow } from '../video/types';
 import { videoManager } from '../../managers/video-manager/manager';
 import dashjs from 'dashjs';
-import { pause, play, reload, seek, togglePlay } from './actions';
-import { selectFlowIds } from '../video/selectors';
+import { pause, play, reload, seek, togglePlay, toggleSound } from './actions';
+import { selectFlowIds, selectMainFlowId } from '../video/selectors';
 import { PlayerStatus } from '../../types/player';
-import { setStatus } from '../player/slice';
+import { setIsMuted, setStatus, setVolume } from '../player/slice';
 import { onEnded, onTimeupdate, doSeek } from './helpers';
-import { selectPlayerStatus } from '../player/selectors';
+import { selectIsMuted, selectPlayerStatus, selectVolume, selectVolumeRatio } from '../player/selectors';
+import { getVolumeRatio } from '../player/helpers';
 
 function* createFlow(flow: DistributedFlow) {
     const { distributionUrls } = flow;
@@ -48,6 +49,15 @@ function* getVideos() {
     const flows: dashjs.MediaPlayerClass[] = yield call(getFlows);
     const videos = flows.map(flow => flow.getVideoElement())
     return videos;
+}
+
+function* getMainVideo() {
+    const mainFlowId: string = yield select(selectMainFlowId);
+    const mainFlow: dashjs.MediaPlayerClass = yield call([videoManager, videoManager.getVideoById],
+        mainFlowId
+    );
+    const video = mainFlow.getVideoElement();
+    return video;
 }
 
 function* playSaga() {
@@ -102,18 +112,43 @@ function* togglePlaySaga() {
     }
 }
 
+function* toggleSoundSaga() {
+    const isMuted: boolean = yield select(selectIsMuted);
+    yield put(setIsMuted(!isMuted));
+    if (isMuted) {
+        const volume: number = yield select(selectVolume);
+        if (!volume) {
+            yield put(setVolume(50));
+        }
+    }
+}
+
+function* updateIsMutedSaga(action: PayloadAction<boolean>) {
+    const mainVideo: HTMLVideoElement = yield call(getMainVideo);
+    mainVideo.muted = action.payload;
+}
+
+function* updateVolumeSaga(action: PayloadAction<number>) {
+    const mainVideo: HTMLVideoElement = yield call(getMainVideo);
+    mainVideo.volume = getVolumeRatio(action.payload);
+}
+
 function* handleUpdateMainFlow(prevFlowId: string | null, currentFlowId: string | null) {
     const videos: HTMLVideoElement[] = yield call(getVideos);
+    const isMuted: boolean = yield select(selectIsMuted);
+    const volume: number = yield select(selectVolumeRatio);
     videos.forEach((video) => {
         const videoId = video.dataset.id;
         if (prevFlowId === videoId) {
             video.removeEventListener('timeupdate', onTimeupdate);
             video.removeEventListener('ended', onEnded);
+            video.muted = true;
         }
         if (currentFlowId === videoId) {
             video.addEventListener('timeupdate', onTimeupdate);
             video.addEventListener('ended', onEnded);
-            video.muted = false;
+            video.muted = isMuted;
+            video.volume = volume;
         } else {
             video.muted = true;
         }
@@ -138,5 +173,8 @@ export function* rootPlayerSagas() {
         takeLatest(reload.type, reloadSaga),
         takeLatest(seek.type, seekSaga),
         takeLatest(togglePlay.type, togglePlaySaga),
+        takeLatest(toggleSound.type, toggleSoundSaga),
+        takeEvery(setVolume.type, updateVolumeSaga),
+        takeEvery(setIsMuted.type, updateIsMutedSaga),
     ]);
 }

@@ -10,6 +10,7 @@ import { PlayerStatus } from '../../types/player';
 import { pause, play, reload } from '../../store/shared/actions';
 import { TimeRange } from '../range/time-range';
 import { TimeIndicator } from '../time-indicator';
+import { VolumeControl } from '../volume-control';
 
 import css from './styles.module.styl';
 
@@ -60,6 +61,7 @@ export const Controls: FC<ControlsProps> = ({ onFullScreenChangeAttempt: onFullS
                         {mainIcon}
                     </button>
                     <TimeIndicator />
+                    <VolumeControl />
                 </div>
                 <div className={css.rightPanel}>
                     <button
