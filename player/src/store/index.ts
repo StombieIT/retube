@@ -3,7 +3,6 @@ import createSagaMiddleware from 'redux-saga';
 import { rootSaga } from './root-saga';
 import { videoReducer } from './video/slice';
 import { errorReducer } from './error/slice';
-import { slotControlReducer } from './slot-control/slice';
 import { playerReducer } from './player/slice';
 import { configReducer } from './config/slice';
 
@@ -13,7 +12,6 @@ export const store = configureStore({
     reducer: {
         video: videoReducer,
         error: errorReducer,
-        slotControl: slotControlReducer,
         player: playerReducer,
         config: configReducer,
     },
@@ -26,5 +24,4 @@ export const store = configureStore({
 
 sagaMiddleware.run(rootSaga);
 
-// @ts-ignore
-window.__store = store;
+window.store = store;

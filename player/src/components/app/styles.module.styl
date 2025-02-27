@@ -20,11 +20,12 @@
     }
 }
 
-.slot {
+.slotWrapper {
+    width: 300px;
     position: relative;
     border: 2px solid #ffffff;
     border-radius: 15px;
-    max-height: 150px;
+    height: 150px;
     overflow: hidden;
 
     .button {
@@ -35,6 +36,12 @@
         position: absolute;
         inset: 0;
         z-index: 4;
+    }
+
+    .slot {
+        position: absolute;
+        inset: 0;
+        min-height: 100%;
     }
 }
 

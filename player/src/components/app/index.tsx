@@ -1,13 +1,15 @@
-import { FunctionComponent, ReactNode, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import cn from 'classnames';
 import { selectFlows, selectMainFlowId } from '../../store/video/selectors';
 import { Slot } from '../slot';
 import { Controls } from '../controls';
-import { setStatus, setTime } from '../../store/player/slice';
+import { setIsFullScreenOpened, setStatus, setTime } from '../../store/player/slice';
 import { PlayerStatus } from '../../types/player';
-import { selectPlayerStatus } from '../../store/player/selectors';
+import { selectIsFullScreenOpened, selectPlayerStatus } from '../../store/player/selectors';
 import { selectIsControlsHideable } from '../../store/config/selectors';
+import { setMainFlowId } from '../../store/video/slice';
+import { togglePlay } from '../../store/shared/actions';
 
 import css from './styles.module.styl';
 
@@ -18,9 +20,13 @@ export const App: FunctionComponent = () => {
     const flows = useSelector(selectFlows);
     const mainFlowId = useSelector(selectMainFlowId);
     const isControlsHideable = useSelector(selectIsControlsHideable);
+    const isFullScreenOpened = useSelector(selectIsFullScreenOpened);
     const dispatch = useDispatch();
+
+    const containerRef = useRef<HTMLDivElement>(null);
     const [lastWasTouched, setLastWasTouched] = useState<number>(0);
     const [isControlsVisible, setIsControlsVisible] = useState<boolean>(true);
+    const [isFullScreenLoading, setIsFullScreenLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (lastWasTouched) {
@@ -66,21 +72,24 @@ export const App: FunctionComponent = () => {
                     <Slot
                         className={css.mainSlot}
                         flowId={flow.id}
-                        onTimeUpdate={onTimeUpdate}
-                        onEnded={onEnded}
+                        onClick={() => dispatch(togglePlay())}
                     />
                 );
                 continue;
             }
 
             regularSlots.push(
-                <div className={css.slot}>
-                    <button type="button" className={css.button}>
+                <div className={css.slotWrapper}>
+                    <button
+                        type="button"
+                        className={css.button}
+                        onClick={() => dispatch(setMainFlowId(flow.id))}
+                    >
                     </button>
                     <Slot
                         key={flow.id}
                         flowId={flow.id}
-                        muted
+                        className={css.slot}
                     />
                 </div>
             );
@@ -102,6 +111,16 @@ export const App: FunctionComponent = () => {
             </>
         );
     })();
+
+    useEffect(() => {
+        const onFullscreenChange = () => {
+            dispatch(setIsFullScreenOpened(Boolean(document.fullscreenElement)));
+        };     
+
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+
+        return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+    }, []);
     
     const controlsWrapperClasses = cn(
         css.controlsWrapper,
@@ -110,25 +129,37 @@ export const App: FunctionComponent = () => {
         }
     );
 
-    const onClick = useCallback(() => {
+    const onClick = useCallback((evt: React.MouseEvent<HTMLDivElement>) => {
         setLastWasTouched(Date.now());
     }, [])
 
-    const onMouseMove = () => {
-        if (lastWasTouched) {
-            setLastWasTouched(Date.now());
+    const onMouseMove = useCallback(() => {
+        setLastWasTouched((lastWasTouched) => lastWasTouched ? Date.now() : lastWasTouched);
+    }, []);
+
+    const onFullScreenChangeAttempt = useCallback(() => {
+        setIsFullScreenLoading(true);
+        if (!isFullScreenLoading) {
+            let action: Promise<void>;
+            if (isFullScreenOpened) {
+                action = document.exitFullscreen();
+            } else {
+                action = containerRef.current!.requestFullscreen();
+            }
+            action.finally(() => setIsFullScreenLoading(false));
         }
-    };
+    }, [isFullScreenOpened, isFullScreenLoading]);
 
     return (
         <main
+            ref={containerRef}
             className={css.container}
             onClick={onClick}
             onMouseMove={onMouseMove}
         >
             {slots}
             <footer className={controlsWrapperClasses}>
-                <Controls />
+                <Controls onFullScreenChangeAttempt={onFullScreenChangeAttempt} />
             </footer>
         </main>
     );

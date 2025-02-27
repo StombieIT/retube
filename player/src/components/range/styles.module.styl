@@ -1,3 +1,4 @@
+$common-br = 15px;
 
 .range {
     cursor: pointer;
@@ -49,6 +50,12 @@
     border-radius: 50%;
     border: 3px solid #ffffff;
     height: @width;
-    transform: translate(-50%, -50%);
     background-color: #d8d8d8;
+    transition: transform .15s;
+    transform-origin: 0 0;
+    transform: scale(0) translate(-50%, -50%);
+
+    .range:hover & {
+        transform: scale(1) translate(-50%, -50%);
+    }
 }
