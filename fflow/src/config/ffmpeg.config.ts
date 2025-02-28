@@ -5,8 +5,9 @@ export const FFmpegConfig = registerAs('ffmpeg', () => ({
     audioCodec: process.env.FFMPEG_AUDIO_CODEC,
     videoBitrate: process.env.FFMPEG_VIDEO_BITRATE,
     audioBitrate: process.env.FFMPEG_AUDIO_BITRATE,
-    format: process.env.FFMPEG_FORMAT,
-    segmentDuration: parseInt(process.env.FFMPEG_SEGMENT_DURATION, 10),
-    segmentFormat: process.env.FFMPEG_SEGMENT_FORMAT,
+    dashSegmentDuration: parseInt(process.env.FFMPEG_DASH_SEGMENT_DURATION, 10),
+    dashSegmentFormat: process.env.FFMPEG_DASH_SEGMENT_FORMAT,
+    hlsTime: parseInt(process.env.FFMPEG_HLS_TIME, 10),
+    hlsPlaylistType: process.env.FFMPEG_HLS_PLAYLIST_TYPE,
     manifestFilename: process.env.FFMPEG_MANIFEST_FILENAME
 }));

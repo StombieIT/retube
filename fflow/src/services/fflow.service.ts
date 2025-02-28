@@ -1,10 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FFlow } from '@stombie/retube-core';
 import { ChildProcess, spawn } from 'child_process';
 import { FlowNotFoundError } from '../errors/flow-not-found.error';
 import { FlowAlreadyExistsError } from '../errors/flow-already-exists.error';
 import { FFmpegArg, ffmpegArgsBuilder } from '../utils/ffmpeg';
+
+export interface CreateFlowParams {
+    dashOutput: string;
+    hlsOutput: string;
+}
 
 @Injectable()
 export class FFlowService {
@@ -14,9 +18,11 @@ export class FFlowService {
     private readonly audioCodec: string;
     private readonly videoBitrate: string;
     private readonly audioBitrate: string;
-    private readonly format: FFlow.FFmpegFormat;
-    private readonly segmentDuration: number;
-    private readonly segmentFormat: string;
+    private readonly dashSegmentDuration: number;
+    private readonly dashSegmentFormat: string;
+    private readonly hlsTime: number;
+    private readonly hlsPlaylistType: string;
+
     private readonly logLevel: string;
 
     constructor(configService: ConfigService) {
@@ -25,27 +31,32 @@ export class FFlowService {
         this.audioCodec = configService.get<string>('ffmpeg.audioCodec', 'aac');
         this.videoBitrate = configService.get<string>('ffmpeg.videoBitrate', '5000k');
         this.audioBitrate = configService.get<string>('ffmpeg.audioBitrate', '192k');
-        this.format = configService.get<FFlow.FFmpegFormat>('ffmpeg.format', 'dash');
-        this.segmentDuration = configService.get<number>('ffmpeg.segmentDuration', 10);
-        this.segmentFormat = configService.get<string>('ffmpeg.segmentFormat', 'mp4');
+        this.dashSegmentDuration = configService.get<number>('ffmpeg.dashSegmentDuration', 10);
+        this.dashSegmentFormat = configService.get<string>('ffmpeg.dashSegmentFormat', 'mp4');
+        this.hlsTime = configService.get<number>('ffmpeg.hlsTime', 4);
+        this.hlsPlaylistType = configService.get<string>('hlsPlaylistType', 'vod');
         this.logLevel = configService.get<string>('ffmpeg.logLevel', 'debug');
     }
 
     // TODO: мб добавить подвязку не на uploadSessionId, а на встроенном айдишнике линии
-    createFlow(uploadSessionId: string, output: string) {
+    createFlow(uploadSessionId: string, { dashOutput, hlsOutput }: CreateFlowParams) {
         const args = ffmpegArgsBuilder()
             .addInput('pipe:0')
             .addArg(FFmpegArg.VIDEO_CODEC, this.videoCodec)
             .addArg(FFmpegArg.AUDIO_CODEC, this.audioCodec)
             .addArg(FFmpegArg.VIDEO_BITRATE, this.videoBitrate)
             .addArg(FFmpegArg.AUDIO_BITRATE, this.audioBitrate)
-            .addArg(FFmpegArg.FORMAT, this.format)
-            .addArg(FFmpegArg.SEGMENT_DURATION, this.segmentDuration)
-            .addArg(FFmpegArg.SEGMENT_FORMAT, this.segmentFormat)
+            .addArg(FFmpegArg.FORMAT, 'dash')
+            .addArg(FFmpegArg.SEGMENT_DURATION, this.dashSegmentDuration)
+            .addArg(FFmpegArg.SEGMENT_FORMAT, this.dashSegmentFormat)
             .addArg(FFmpegArg.LOG_LEVEL, this.logLevel)
-            .addOutput(output)
+            .addOutput(dashOutput)
+            .addArg(FFmpegArg.FORMAT, 'hls')
+            .addArg(FFmpegArg.HLS_PLAYLIST_TYPE, this.hlsPlaylistType)
+            .addArg(FFmpegArg.HLS_TIME, this.hlsTime)
+            .addOutput(hlsOutput)
             .build();
-        this.logger.log(`createFlow: uploadSessionId: ${uploadSessionId}: ${output}`);
+        this.logger.log(`args ${args}`);
         if (this.flowBySessionId[uploadSessionId]) {
             throw new FlowAlreadyExistsError(uploadSessionId);
         }

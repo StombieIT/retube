@@ -1,25 +1,34 @@
 import * as path from 'path';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FFlow } from '@stombie/retube-core';
 
 @Injectable()
 export class PathService {
-    private readonly logger = new Logger(PathService.name);
     private readonly dataFolder: string;
 
     constructor(configService: ConfigService) {
         this.dataFolder = configService.get<string>('app.dataFolder', '/data');
-        this.logger.log(`PathService started with data folder path: ${this.dataFolder}`);
+    }
+
+    uploadDir(uploadSessionId: string) {
+        return path.join(this.dataFolder, uploadSessionId);
     }
 
     dashFFlow(uploadSessionId: string, filename?: string) {
         return path.join(this.dataFolder, this.dashFFlowPath(uploadSessionId, filename));
     }
-
+    
     dashFFlowPath(uploadSessionId: string, filename?: string) {
-        this.logger.log(`dashFFlowPath: ${this.fflowPath(uploadSessionId, 'dash', filename)}`);
         return this.fflowPath(uploadSessionId, 'dash', filename);
+    }
+    
+    hlsFFlow(uploadSessionId: string, filename?: string) {
+        return path.join(this.dataFolder, this.hlsFFlowPath(uploadSessionId, filename));
+    }
+
+    hlsFFlowPath(uploadSessionId: string, filename?: string) {
+        return this.fflowPath(uploadSessionId, 'hls', filename);
     }
 
     fflow(uploadSessionId: string, format: FFlow.FFmpegFormat, filename?: string) {
@@ -28,11 +37,8 @@ export class PathService {
 
     fflowPath(uploadSessionId: string, format: FFlow.FFmpegFormat, filename?: string) {
         if (filename) {
-            this.logger.log(`fflowPath: ${path.join(uploadSessionId, format, filename)}`);
-            this.logger.log(`fflowPath: ${path.join(uploadSessionId, format, filename)}`);
             return path.join(uploadSessionId, format, filename);
         }
-        this.logger.log(`fflowPath: ${path.join(uploadSessionId, format)}`);
         return path.join(uploadSessionId, format);
     }
 }

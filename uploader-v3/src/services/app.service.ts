@@ -7,8 +7,6 @@ import { FFlowOrchestratorService } from './fflow-orchestrator.service';
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
-    private readonly logger = new Logger(AppService.name);    
-
     constructor(private readonly chunkConsumer: ChunkConsumerService,
                 private readonly fflowOrchestrator: FFlowOrchestratorService,
                 @InjectRepository(UploadSession) private readonly uploadSessions: Repository<UploadSession>,
