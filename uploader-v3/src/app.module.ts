@@ -12,6 +12,8 @@ import { RedisConfig } from './config/redis.config';
 import { AppService } from './services/app.service';
 import { FtpConfig } from './config/ftp.config';
 import { FFlowOrchestratorService } from './services/fflow-orchestrator.service';
+import { SchedulerService } from './services/scheduler.service';
+import { SchedulerConfig } from './config/scheduler.config';
 
 const DB_ENTITIES = [User, Video, Flow, UploadSession];
 
@@ -25,10 +27,13 @@ const DB_ENTITIES = [User, Video, Flow, UploadSession];
     TypeOrmModule.forFeature(DB_ENTITIES),
       ConfigModule.forRoot({
         isGlobal: true,
-        load: [AmqpConfig, ApiConfig, RedisConfig, FtpConfig],
+        load: [AmqpConfig, ApiConfig, RedisConfig, FtpConfig, SchedulerConfig],
       }),
       HttpModule,
   ],
-  providers: [ChunkConsumerService, ApiService, FFlowCacheService, FFlowOrchestratorService, AppService],
+  providers: [
+    ChunkConsumerService, ApiService, FFlowCacheService,
+    FFlowOrchestratorService, SchedulerService, AppService,
+  ],
 })
 export class AppModule {}

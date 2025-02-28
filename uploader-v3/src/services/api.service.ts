@@ -31,10 +31,9 @@ export class ApiService {
     /**
      * Удаление потока
      */
-    async deleteFlow(uploadSessionId: string): Promise<AxiosResponse<FFlow.Response.Delete>> {
-        const url = `${this.fflowUrl}/${uploadSessionId}`;
+    async deleteFlow(deleteUrl: string): Promise<AxiosResponse<FFlow.Response.Delete>> {
         try {
-            return firstValueFrom(this.httpService.delete(url));
+            return await firstValueFrom(this.httpService.delete(deleteUrl));
         } catch (error) {
             throw new Error(`Error deleting flow: ${error.message}`);
         }
@@ -45,7 +44,7 @@ export class ApiService {
      */
     async finishFlow(finishUrl: string, params: FFlow.Request.Finish): Promise<AxiosResponse<FFlow.Response.Finish>> {
         try {
-            return firstValueFrom(
+            return await firstValueFrom(
                 this.httpService.post(finishUrl, params),
             );
         } catch (error) {

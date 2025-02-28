@@ -28,6 +28,22 @@ export class FFlowOrchestratorService {
         await this.api.pushToFlow(`${flowUrl}/push`, content);
     }
 
+    async deleteFlow(uploadSessionId: string) {
+        this.logger.debug(`deleteFlow: attempt ${uploadSessionId}`);
+        try {
+            const flowUrl = await this.fflowCache.getFlowUrl(uploadSessionId);
+            if (!flowUrl) {
+                return;
+            }
+            await this.api.deleteFlow(`${flowUrl}/delete`);
+            await this.fflowCache.deleteFlowUrl(uploadSessionId);
+        } catch (error) {
+            // ignore
+        } finally {
+            this.logger.log(`deleteFlow: ${uploadSessionId}`);
+        }
+    }
+
     async finishFlow(uploadSessionId: string, finishParams: FFlow.Request.Finish) {
         this.logger.debug(`finishFlow: ${finishParams.savingPath}`);
         const flowUrl = await this.ensureFlow(uploadSessionId);

@@ -53,6 +53,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             });
             await this.flows.update(flow.id, {
                 status: FlowStatus.DISTRIBUTED,
+                uploadedAt: new Date(),
             });
             const flows = await this.flows.find({
                 where: {
