@@ -93,7 +93,7 @@ export class FFlowService {
 
     private async killFlow(uploadSessionId: string) {
         const destroyPromise = this.listenDestroy(uploadSessionId);
-        this.flowBySessionId[uploadSessionId].kill();
+        this.flowBySessionId[uploadSessionId].kill('SIGKILL');
         await destroyPromise;
         delete this.flowBySessionId[uploadSessionId];
     }

@@ -52,7 +52,7 @@ export class AppController {
     /**
      * Удаление существующего потока ffmpeg
      */
-    @Delete(':uploadSessionId')
+    @Delete(':uploadSessionId/delete')
     async deleteFlow(@Param('uploadSessionId') uploadSessionId: string): Promise<FFlow.Response.Delete> {
         try {
             await this.app.deleteFlow(uploadSessionId);

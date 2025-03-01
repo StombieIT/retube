@@ -16,7 +16,7 @@ export class User {
     @Column({ name: 'password_hash' })
     passwordHash!: string;
 
-    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'created_at', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
     createdAt!: Date;
 }
 
@@ -48,10 +48,10 @@ export class Flow {
     })
     status!: FlowStatus;
 
-    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'created_at', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
     createdAt!: Date;
 
-    @Column({ name: 'uploaded_at', type: 'timestamp', nullable: true })
+    @Column({ name: 'uploaded_at', type: 'timestamptz', nullable: true })
     uploadedAt?: Date;
 
     @ManyToOne(() => Video, (video) => video.flows, { onDelete: 'CASCADE' })
@@ -76,10 +76,10 @@ export class Video {
     @Column('int')
     duration!: number;
 
-    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'created_at', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
     createdAt!: Date;
 
-    @Column({ name: 'uploaded_at', type: 'timestamp', nullable: true })
+    @Column({ name: 'uploaded_at', type: 'timestamptz', nullable: true })
     uploadedAt?: Date;
 
     @Column({
