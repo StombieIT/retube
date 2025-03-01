@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "publish": "yarn build && npm publish"
   },
   "author": "",
   "license": "UNLICENSED",

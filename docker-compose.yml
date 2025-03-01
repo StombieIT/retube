@@ -24,3 +24,55 @@ services:
       - "5432:5432"
     volumes:
       - ./file-storage/db:/var/lib/postgresql/data
+  holder:
+    build:
+      context: holder
+      dockerfile: ../service.Dockerfile
+    expose:
+      - "4000"
+      - "4001"
+      - "4002"
+      - "4003"
+      - "4004"
+      - "21"
+      - "4050"
+    environment:
+      - ROOT_PATH=/data
+      - DISTRIBUTION_PORT=4050
+      - PLAYER_ORIGIN=http://localhost:3000
+      - FTP_URL=ftp://0.0.0.0:21
+    volumes:
+      - /Users/vladislav.yartsev/Desktop/dev/personal/retube/file-storage/holder:/data
+    networks:
+      - internal_net
+  holder-balancer:
+    image: nginx:latest
+    container_name: holder-balancer
+    volumes:
+      - ./holder.nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "4050:4050"
+      - "21:21"
+      - "4000:4000"
+      - "4001:4001"
+      - "4002:4002"
+      - "4003:4003"
+      - "4004:4004"
+    # TODO: Раскомментить, когда
+    # expose:
+      # - "4000"
+      # - "4001"
+      # - "4002"
+      # - "4003"
+      # - "4004"
+      # - "21"
+    networks:
+      - internal_net
+      - public_net
+
+networks:
+  public_net:
+    driver: bridge
+  internal_net:
+    driver: bridge
+    internal: true

@@ -16,6 +16,8 @@ export class FtpService implements OnModuleInit, OnModuleDestroy {
         this.ftpServer = new FtpSrv({
             url: this.url,
             anonymous: true,
+            pasv_min: 4000,
+            pasv_max: 4004,
         });
     }
 
