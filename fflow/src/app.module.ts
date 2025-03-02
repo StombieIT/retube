@@ -5,7 +5,6 @@ import { AppConfig } from './config/app.config';
 import { PathService } from './services/path.service';
 import { FFlowService } from './services/fflow.service';
 import { AppService } from './services/app.service';
-import { ApiConfig } from './config/api.config';
 import { FFmpegConfig } from './config/ffmpeg.config';
 import { FtpConfig } from './config/ftp.config';
 import { FtpSessionsOrchestratorService } from './services/ftp-sessions-orchestrator.service';
@@ -14,7 +13,7 @@ import { FtpSessionsOrchestratorService } from './services/ftp-sessions-orchestr
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [AppConfig, FFmpegConfig, ApiConfig, FtpConfig]
+            load: [AppConfig, FFmpegConfig, FtpConfig],
         }),
     ],
     controllers: [AppController],

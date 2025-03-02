@@ -45,7 +45,6 @@ export class FFlowOrchestratorService {
     }
 
     async finishFlow(uploadSessionId: string, finishParams: FFlow.Request.Finish) {
-        this.logger.debug(`finishFlow: ${finishParams.savingPath}`);
         const flowUrl = await this.ensureFlow(uploadSessionId);
         await this.api.finishFlow(`${flowUrl}/finish`, finishParams);
         await this.fflowCache.deleteFlowUrl(uploadSessionId);

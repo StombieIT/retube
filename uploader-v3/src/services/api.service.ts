@@ -48,7 +48,7 @@ export class ApiService {
                 this.httpService.post(finishUrl, params),
             );
         } catch (error) {
-            throw new Error(`ApiService#finishFlow: Error finishing flow: ${error.message}`);
+            throw new Error(`ApiService#finishFlow: Error finishing flow: ${JSON.stringify(error.response.data)}`);
         }
     }
 

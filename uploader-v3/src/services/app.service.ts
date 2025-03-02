@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Flow, FlowStatus, IVideoChunk, UploadSession, Video, VideoStatus } from '@stombie/retube-core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
