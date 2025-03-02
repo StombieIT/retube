@@ -2,9 +2,8 @@ import { In, LessThanOrEqual, Repository } from 'typeorm';
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Video, VideoStatus } from '@stombie/retube-core';
+import { retry, Video, VideoStatus } from '@stombie/retube-core';
 import { FFlowOrchestratorService } from './fflow-orchestrator.service';
-import { retry } from '../helpers';
 
 const RETRY_MAX_COUNT = 5;
 

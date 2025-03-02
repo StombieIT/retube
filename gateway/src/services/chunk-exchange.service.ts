@@ -1,14 +1,11 @@
 import { randomUUID } from 'crypto';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IVideoChunk, Task } from '@stombie/retube-core';
+import { IVideoChunk, retry, Task } from '@stombie/retube-core';
 import { connect as amqpConnect, ConfirmChannel, Connection, Message } from 'amqplib';
-
-const MAX_CHUNK_LENGTH = 4096;
 
 @Injectable()
 export class ChunkExchangeService implements OnModuleInit { 
-    private readonly logger = new Logger(ChunkExchangeService.name);
     private readonly amqpConnectionString: string;
     private readonly chunkUploadExchange: string;
     private readonly chunkUploadQueue: string;
@@ -64,7 +61,7 @@ export class ChunkExchangeService implements OnModuleInit {
     }
 
     private async init() {
-        this.connection = await amqpConnect(this.amqpConnectionString);
+        this.connection = await retry(() => amqpConnect(this.amqpConnectionString));
         this.channel = await this.connection.createConfirmChannel();
         await Promise.all([
             this.channel.assertExchange(this.chunkUploadExchange, 'topic', { durable: false }),
@@ -76,19 +73,21 @@ export class ChunkExchangeService implements OnModuleInit {
     }
 
     private handleReply = (message: Message) => {
-        this.channel.ack(message);
         const { headers } = message.properties;
         if (!headers ||
             typeof headers['x-correlation-id'] !== 'string' ||
             typeof headers['x-status'] !== 'string' ||
             (headers['x-status'] !== 'ack' &&
             headers['x-status'] !== 'nack')) {
+            this.channel.nack(message);
             return;
         }
         const correlationId = headers['x-correlation-id'];
         if (!this.taskByCorrelationId[correlationId]) {
+            this.channel.nack(message);
             return;
         }
+        this.channel.ack(message);
         const task = this.taskByCorrelationId[correlationId];
         delete this.taskByCorrelationId[correlationId];
         if (headers['x-status'] === 'ack') {

@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { connect as amqpConnect, ConfirmChannel, Connection, ConsumeMessage } from 'amqplib';
-import { IVideoChunk } from '@stombie/retube-core';
+import { IVideoChunk, retry } from '@stombie/retube-core';
 import * as EventEmitter from 'node:events';
 
 const EMPTY_CONTENT = Buffer.alloc(0);
@@ -41,7 +41,8 @@ export class ChunkConsumerService extends EventEmitter<ChunkConsumerServiceEvent
     }
 
     private async init() {
-        this.connection = await amqpConnect(this.amqpConnectionString);
+        this.connection = await retry(() => amqpConnect(this.amqpConnectionString));
+        this.logger.log(`Connected to ${this.amqpConnectionString}`);
         this.channel = await this.connection.createConfirmChannel();
         await Promise.all([
             this.channel.assertExchange(this.chunkUploadExchange, 'topic', { durable: false }),

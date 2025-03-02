@@ -8,13 +8,40 @@ x-fflow-common: &fflow_common
     - "5050"
   environment: &fflow_env
     PORT: 5050
-    HOST: localhost:5050
+    HOST: fflow-balancer:5050
     DATA_FOLDER: /data
     # FFMPEG настройки не указываем, так как они уже предусмотрены по дефолту
     FTP_SERVER_HOST: holder-balancer
     FTP_SERVER_PORT: 21
   networks:
     - internal_net
+
+x-uploader: &uploader_common
+  depends_on:
+    - video-queue
+    - cache
+    - db
+    - fflow-balancer
+  build:
+    context: uploader-v3
+    dockerfile: ../service.Dockerfile
+  expose:
+    - "4040"
+  environment: &uploader_env
+    PORT: 4040
+    AMQP_CONNECTION_STRING: amqp://video-queue
+    CHUNK_UPLOAD_AMQP_EXCHANGE: chunk-exchange
+    CHUNK_UPLOAD_AMQP_QUEUE: chunk-upload
+    CHUNK_REPLY_AMQP_QUEUE: chunk-reply
+    REDIS_CONNECTION_STRING: redis://cache
+    FFLOW_CACHE_DB: 0
+    API_FFLOW_URL: http://fflow-balancer:5050
+    DB_CONNECTION_STRING: postgresql://postgres:postgres@db:5432/retube
+    SCHEDULER_SLEEP_TIME: 600000
+    SCHEDULER_LIFETIME_MAXIMUM: 3600000
+  networks:
+    - internal_net
+
 services:
   holder:
     build:
@@ -89,7 +116,6 @@ services:
       - ./file-storage/fflow/log:/var/log/nginx
     networks:
       - internal_net
-      - public_net
   video-queue:
     image: rabbitmq:3-management
     container_name: video-queue
@@ -99,11 +125,22 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+    expose:
+      - "5672"
+      - "15672"
+    networks:
+      - internal_net
+      - public_net
   cache:
     image: redis:latest
     container_name: cache
     ports:
       - "6379:6379"
+    expose:
+      - "6379"
+    networks:
+      - internal_net
+      - public_net
   db:
     image: postgres:latest
     container_name: db
@@ -111,10 +148,61 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=retube
+    expose:
+      - "5432"
     ports:
       - "5432:5432"
     volumes:
       - ./file-storage/db:/var/lib/postgresql/data
+    networks:
+      - internal_net
+      - public_net
+  uploader:
+    <<: *uploader_common
+    container_name: uploader
+  uploader-standalone:
+    <<: *uploader_common
+    container_name: uploader-standalone
+    environment:
+      <<: *uploader_env
+      SCHEDULER_ENABLED: true
+  gateway:
+    build:
+      context: gateway
+      dockerfile: ../service.Dockerfile
+    depends_on:
+      - uploader-standalone
+    environment:
+      - AMQP_CONNECTION_STRING=amqp://video-queue
+      - CHUNK_UPLOAD_AMQP_EXCHANGE=chunk-exchange
+      - CHUNK_UPLOAD_AMQP_QUEUE=chunk-upload
+      - CHUNK_REPLY_AMQP_QUEUE=chunk-reply
+      - REDIS_CONNECTION_STRING=redis://cache
+      - VIDEO_CACHE_DB=1
+      - DB_CONNECTION_STRING=postgresql://postgres:postgres@db:5432/retube
+      - PASSWORD_HASH_SECRET=$PASSWORD_HASH_SECRET
+      - JWT_SECRET=$JWT_SECRET
+      - SYNC_EDITOR_ORIGIN=http://localhost:5445
+      - PLAYER_ORIGIN=http://localhost:3000
+      - HOLDER_BASE_URL=http://localhost:4050
+      - HOLDER_MANIFEST_NAME=manifest
+    expose:
+      - "4080"
+    networks:
+      - internal_net
+  gateway-balancer:
+    depends_on:
+      - gateway
+    image: nginx:latest
+    container_name: gateway-balancer
+    volumes:
+      - ./gateway.nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "4080:4080"
+    networks:
+      - internal_net
+      - public_net
+
 
 networks:
   public_net:

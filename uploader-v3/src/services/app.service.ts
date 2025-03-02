@@ -1,13 +1,14 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Flow, FlowStatus, IVideoChunk, UploadSession, Video, VideoStatus } from '@stombie/retube-core';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Flow, FlowStatus, IVideoChunk, retry, UploadSession, Video, VideoStatus } from '@stombie/retube-core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChunkConsumerService } from './chunk-consumer.service';
 import { FFlowOrchestratorService } from './fflow-orchestrator.service';
-import { retry } from '../helpers';
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
+    private readonly logger = new Logger(AppService.name);    
+
     constructor(private readonly chunkConsumer: ChunkConsumerService,
                 private readonly fflowOrchestrator: FFlowOrchestratorService,
                 @InjectRepository(UploadSession) private readonly uploadSessions: Repository<UploadSession>,
