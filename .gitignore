@@ -1,5 +1,6 @@
 uploader-v2
 .DS_Store
+.env
 
 # Место хранения файлов для локальной разработки
 file-storage

@@ -1,0 +1,26 @@
+services:
+  video-queue:
+    image: rabbitmq:3-management
+    container_name: video-queue
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    port:
+      - "5672:5672"
+      - "15672:15672"
+  cache:
+    image: redis:latest
+    container_name: cache
+    port:
+      - "6379:6379"
+  db:
+    image: postgres:latest
+    container_name: db
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=retube
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./file-storage/db:/var/lib/postgresql/data
