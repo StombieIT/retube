@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
         ],
         server: {
             port: Number(VITE_PORT) || 3000,
+            host: mode === 'production',
         },
     };
 });

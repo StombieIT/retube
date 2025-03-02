@@ -58,7 +58,7 @@ services:
     environment:
       - ROOT_PATH=/data
       - DISTRIBUTION_PORT=4050
-      - PLAYER_ORIGIN=http://localhost:3000
+      - PLAYER_ORIGIN=http://$HOST:80
       - FTP_URL=ftp://0.0.0.0:21
     volumes:
       - ./file-storage/holder:/data
@@ -174,9 +174,9 @@ services:
       - DB_CONNECTION_STRING=postgresql://postgres:postgres@db:5432/retube
       - PASSWORD_HASH_SECRET=$PASSWORD_HASH_SECRET
       - JWT_SECRET=$JWT_SECRET
-      - SYNC_EDITOR_ORIGIN=http://localhost:5445
-      - PLAYER_ORIGIN=http://localhost:3000
-      - HOLDER_BASE_URL=http://localhost:4050
+      - SYNC_EDITOR_ORIGIN=http://$HOST:5445
+      - PLAYER_ORIGIN=http://$HOST:80
+      - HOLDER_BASE_URL=http://$HOST:4050
       - HOLDER_MANIFEST_NAME=manifest
     expose:
       - "4080"
@@ -194,7 +194,38 @@ services:
     networks:
       - internal_net
       - public_net
-
+  sync-editor:
+    depends_on:
+      - gateway-balancer
+    build:
+      context: sync-editor
+      dockerfile: ../service.Dockerfile
+    ports:
+      - "5445:5445"
+    environment:
+      - PORT=5445
+      - VITE_GATEWAY_URL=http://$HOST:4080
+      - VITE_MAX_CHUNK_SIZE=8192
+      - VITE_UPLOAD_DELAY=100
+      - VITE_STATE_POLLING_DELAY=2500
+      - VITE_BEFORE_DISTRIBUTION_DELAY=5000
+      - VITE_PLAYER_BASE_URL=http://$HOST:80
+      - VITE_TOKENS_STORAGE_KEY=_tokens
+    networks:
+      - public_net
+  player:
+    depends_on:
+      - gateway-balancer
+    build:
+      context: player
+      dockerfile: ../service.Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+      - VITE_GATEWAY_URL=http://$HOST:4080
+    networks:
+      - public_net
 
 networks:
   public_net:

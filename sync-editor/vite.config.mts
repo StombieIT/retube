@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
         ],
         server: {
             port,
+            host: mode === 'production',
         },
     };
 });
