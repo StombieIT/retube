@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChunkConsumerService } from './chunk-consumer.service';
 import { FFlowOrchestratorService } from './fflow-orchestrator.service';
+import { retry } from '../helpers';
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
@@ -24,7 +25,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
     private handleChunk = async (correlationId: string, chunk: IVideoChunk) => {
         const { sessionId, size, startByte, content } = chunk;
-        const uploadSession = await this.uploadSessions.findOne({
+        const uploadSession = await retry(() => this.uploadSessions.findOne({
             relations: {
                 flow: {
                     video: true,
@@ -33,7 +34,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             where: {
                 id: sessionId,
             },
-        });
+        }));
         const updatedUploadedBytes = startByte + size;
         if (!uploadSession ||
             startByte !== uploadSession.uploadedBytes ||
@@ -41,35 +42,35 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             return await this.chunkConsumer.dropMessageByCorrelationId(correlationId);
         }
         await this.fflowOrchestrator.ensureFlow(sessionId);
-        await this.fflowOrchestrator.pushToFlow(sessionId, content);
-        await this.uploadSessions.update(sessionId, {
+        await retry(() => this.fflowOrchestrator.pushToFlow(sessionId, content));
+        await retry(() => this.uploadSessions.update(sessionId, {
             uploadedBytes: updatedUploadedBytes,
-        });
+        }));
         if (updatedUploadedBytes === uploadSession.totalBytes) {
             const { flow } = uploadSession;
             const { video } = flow;
-            await this.fflowOrchestrator.finishFlow(sessionId, {
+            await retry(() => this.fflowOrchestrator.finishFlow(sessionId, {
                 savingPath: `/${video.id}/${flow.id}`,
-            });
-            await this.flows.update(flow.id, {
+            }));
+            await retry(() => this.flows.update(flow.id, {
                 status: FlowStatus.DISTRIBUTED,
                 uploadedAt: new Date(),
-            });
-            const flows = await this.flows.find({
+            }));
+            const flows = await retry(() => this.flows.find({
                 where: {
                     video: {
                         id: video.id,
                     },
                 },
-            });
+            }));
             const allDistributed = flows.every(flow => flow.status === FlowStatus.DISTRIBUTED);
             if (allDistributed) {
-                await this.videos.update(video.id, {
+                await retry(() => this.videos.update(video.id, {
                     status: VideoStatus.DISTRIBUTED,
-                });
+                }));
             }
-            await this.uploadSessions.delete(sessionId);
+            await retry(() => this.uploadSessions.delete(sessionId));
         }
-        await this.chunkConsumer.acceptMessageByCorrelationId(correlationId);
+        await retry(() => this.chunkConsumer.acceptMessageByCorrelationId(correlationId));
     }
 }

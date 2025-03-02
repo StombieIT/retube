@@ -4,6 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Video, VideoStatus } from '@stombie/retube-core';
 import { FFlowOrchestratorService } from './fflow-orchestrator.service';
+import { retry } from '../helpers';
+
+const RETRY_MAX_COUNT = 5;
 
 @Injectable()
 export class SchedulerService implements OnModuleInit, OnModuleDestroy {
@@ -46,24 +49,29 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
             createdAt: LessThanOrEqual(expiredThreshold),
             status: In([VideoStatus.CREATED, VideoStatus.UPLOADING]),
         };
-        const videos = await this.videos.find({
-            where,
-            relations: {
-                flows: {
-                    uploadSession: true,
+        try {
+            const videos = await retry(() => this.videos.find({
+                where,
+                relations: {
+                    flows: {
+                        uploadSession: true,
+                    },
                 },
-            },
-        });
-        if (videos.length) {
-            const uploadSessionIds = videos.flatMap((video) =>
-                video.flows.map((flow) => flow.uploadSession),
-            ).filter(Boolean).map((uploadSession) => uploadSession.id);
-            this.logger.debug(`Need to delete: ${uploadSessionIds}`);
-            for (const uploadSessionId of uploadSessionIds) {
-                await this.fflowOrchestrator.deleteFlow(uploadSessionId);
+            }), RETRY_MAX_COUNT);
+            if (videos.length) {
+                const uploadSessionIds = videos.flatMap((video) =>
+                    video.flows.map((flow) => flow.uploadSession),
+                ).filter(Boolean).map((uploadSession) => uploadSession.id);
+                this.logger.debug(`Need to delete: ${uploadSessionIds}`);
+                for (const uploadSessionId of uploadSessionIds) {
+                    await retry(() => this.fflowOrchestrator.deleteFlow(uploadSessionId), RETRY_MAX_COUNT);
+                }
+                await retry(() => this.videos.delete(where), RETRY_MAX_COUNT);
             }
-            await this.videos.delete(where);
+        } catch (err) {
+            this.logger.error(`Retries maximum reached: ${err.message}`);
+        } finally {
+            this.timer = setTimeout(this.tick, this.sleepTime);
         }
-        this.timer = setTimeout(this.tick, this.sleepTime);
     }
 }
