@@ -35,6 +35,23 @@ export class AuthController {
         } catch (err) {
             throw new HttpException({
                 status: 'error',
+                message: 'Credentials are invalid',
+            }, 400);
+        }
+    }
+
+    @Post('refresh')
+    async refresh(@Body() { refreshToken }: Gateway.Request.Refresh) {
+        try {
+            const tokens = await this.auth.refreshToken(refreshToken);
+            return {
+                status: 'success',
+                message: 'Successfully refreshed',
+                payload: tokens,
+            };
+        } catch (err) {
+            throw new HttpException({
+                status: 'error',
                 message: 'Token is invalid',
             }, 400);
         }

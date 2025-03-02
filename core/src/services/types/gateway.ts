@@ -12,6 +12,9 @@ export namespace Gateway {
         accessToken: string;
     }
 
+    export interface WithRefreshToken extends Pick<OAuthTokens, 'refreshToken'> {
+    }
+
     type VideoBase = Pick<Video, 'title' | 'description' | 'duration'>;
     type FlowBase = Pick<Flow, 'id' | 'status'>
 
@@ -36,12 +39,14 @@ export namespace Gateway {
     export namespace Request {
         export type Register = UserPayload;
         export type Login = UserPayload;
+        export type Refresh = WithRefreshToken;
         export type CreateVideo = VideoPayload;
     }
 
     export namespace Response {
         export type Register = BaseResponse;
         export type Login = PayloadResponse<OAuthTokens>;
+        export type Refresh = PayloadResponse<OAuthTokens>;
         export type CreateVideo = PayloadResponse<SmallVideo>;
         export type Upload = BaseResponse;
         export type State = PayloadResponse<SmallVideo>;

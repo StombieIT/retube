@@ -42,7 +42,7 @@ export class AuthService {
 
     async refreshToken(token: string): Promise<Gateway.OAuthTokens> {
         try {
-            const { sub: id, email } = await this.jwt.verifyAsync(token);
+            const { sub: id } = await this.jwt.verifyAsync(token);
             return this.generateTokens(id);
         } catch (err) {
             throw new Error(`Invalid refresh token ${token}`);
