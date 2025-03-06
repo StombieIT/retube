@@ -4,9 +4,13 @@ RUN apk add --no-cache ffmpeg
 
 WORKDIR /app
 
-COPY . .
+COPY package.json .
+COPY yarn.lock .
 
 RUN yarn install
+
+COPY . .
+
 RUN yarn build
 
 CMD ["yarn", "start:prod"]
