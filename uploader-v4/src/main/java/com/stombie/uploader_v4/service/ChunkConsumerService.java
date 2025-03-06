@@ -40,6 +40,8 @@ public class ChunkConsumerService {
     private String uploadQueue;
     @Value("${chunkQueue.amqp.replyQueue}")
     private String replyQueue;
+    @Value("${chunkQueue.amqp.exchange}")
+    private String exchange;
 
     @Autowired
     public ChunkConsumerService(Channel amqpChannel, ApplicationEventPublisher applicationEventPublisher) {
@@ -55,6 +57,8 @@ public class ChunkConsumerService {
         amqpChannel.queueDeclarePassive(uploadQueue);
         amqpChannel.queueDeclarePassive(replyQueue);
 
+        amqpChannel.exchangeDeclare(this.exchange, "topic");
+        amqpChannel.queueBind(this.replyQueue, this.exchange, "reply.*");
         amqpChannel.basicConsume(this.uploadQueue, false, this::handleDelivery, this::handleCancelDelivery);
     }
 
@@ -83,10 +87,12 @@ public class ChunkConsumerService {
                 .headers(headers)
                 .build();
 
+        String routingKey = "reply." + correlationId;
         try {
             /* Указываем в качестве первого параметра пустую строку, так как очереди не привязаны к какому-либо обменнику.
                В качестве body нагрузки передаем пустой массив, так как сообщение не содержит как таковой полезной нагрузки */
-            amqpChannel.basicPublish("", replyQueue, props, new byte[0]);
+            amqpChannel.basicPublish(this.exchange, routingKey, props, new byte[0]);
+            hangingChunkCorrelationIds.remove(correlationId);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
