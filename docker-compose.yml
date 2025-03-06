@@ -29,7 +29,7 @@ x-uploader: &uploader_common
     - "4040"
   environment: &uploader_env
     PORT: 4040
-    AMQP_CONNECTION_STRING: amqp://video-queue
+    AMQP_CONNECTION_STRING: amqp://video-queue/
     CHUNK_UPLOAD_AMQP_EXCHANGE: chunk-exchange
     CHUNK_UPLOAD_AMQP_QUEUE: chunk-upload
     CHUNK_REPLY_AMQP_QUEUE: chunk-reply
@@ -165,7 +165,7 @@ services:
     depends_on:
       - uploader-standalone
     environment:
-      - AMQP_CONNECTION_STRING=amqp://video-queue
+      - AMQP_CONNECTION_STRING=amqp://video-queue/
       - CHUNK_UPLOAD_AMQP_EXCHANGE=chunk-exchange
       - CHUNK_UPLOAD_AMQP_QUEUE=chunk-upload
       - CHUNK_REPLY_AMQP_QUEUE=chunk-reply

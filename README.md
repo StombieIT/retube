@@ -6,7 +6,7 @@ docker compose up -d --scale holder=2 --scale gateway=3 --build
 
 ### Для старта локального приложения необходимо запустить команду
 ```bash
-docker compose up -f docker-compose.dev.yml -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
 ### Для остановки приложения необходимо запустить команду ниже
