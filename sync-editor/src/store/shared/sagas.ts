@@ -12,6 +12,7 @@ import { updateCommonStatus, updateFlows } from '../upload/slice';
 import api from '../../api';
 import { CommonStatus } from '../upload/types';
 import { setPlayerUrl } from '../distribution/slice';
+import { selectVideoDescription, selectVideoTitle } from '../video/selectors';
 
 const {
     VITE_MAX_CHUNK_SIZE,
@@ -75,11 +76,12 @@ function* startUploadSaga() {
             videos.push(video);
             totalBytesList.push(video.size);
         }
-    
+
+        const title: string = yield select(selectVideoTitle);
+        const description: string = yield select(selectVideoDescription);
         const videoBase: Gateway.Request.CreateVideo = {
-            title: 'title',
-            description: 'description',
-            duration: 123123,
+            title,
+            description,
             totalBytesList,
         };
         const { data: { payload: video } }: AxiosResponse<Gateway.Response.CreateVideo> =

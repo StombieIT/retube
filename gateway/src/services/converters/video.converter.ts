@@ -19,7 +19,6 @@ export class VideoConverterService {
             id: video.id,
             title: video.title,
             description: video.description,
-            duration: video.duration,
             status: video.status,
             flows: video.flows.map(flow => {
                 const distributionUrls = {

@@ -5,6 +5,7 @@ import { Candidate } from '../candidate';
 import { useVideoManager } from '../../managers/video-manager/react';
 
 import css from './styles.module.styl';
+import { Logo } from '../logo';
 
 export const Uploading: FC = () => {    
     const flows = useSelector(selectUploadingFlows);
@@ -27,6 +28,7 @@ export const Uploading: FC = () => {
 
     return (
         <main className={css.wrapper}>
+            <Logo className={css.logo} />
             <h2 className={css.header}>Загружаем видео</h2>
             {candidates}
         </main>

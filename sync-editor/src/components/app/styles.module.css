@@ -1,3 +1,8 @@
+.container {
+    background: url(fade.png);
+    background-size: cover;
+}
+
 .wrapper {
     margin: 0 auto;
     min-height: 100vh;
@@ -8,5 +13,5 @@
 }
 
 .themeCommon {
-    --c-main: #00a2e7;
+    --c-main: #B1DCFF;
 }

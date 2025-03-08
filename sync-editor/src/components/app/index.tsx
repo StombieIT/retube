@@ -9,6 +9,7 @@ import { Stage } from '../../types/app';
 import { Uploading } from '../uploading';
 import { Distribution } from '../distribution';
 import { AuthModal } from '../auth-modal';
+import { LogoutButton } from '../logout-button';
 
 import css from './styles.module.css';
 
@@ -30,10 +31,15 @@ export const App: FC = () => {
     })();
 
     return (
-        <div className={cn(css.wrapper, css.themeCommon)}>
-            {content}
-            {!isAuthenticated && (
-                <AuthModal />
+        <div className={cn(css.container, css.themeCommon)}>
+            <div className={cn(css.wrapper)}>
+                {content}
+                {!isAuthenticated && (
+                    <AuthModal />
+                )}
+            </div>
+            {isAuthenticated && (
+                <LogoutButton />
             )}
         </div>
     );

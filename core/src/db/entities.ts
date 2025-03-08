@@ -73,9 +73,6 @@ export class Video {
     @Column('text')
     description!: string;
 
-    @Column('int')
-    duration!: number;
-
     @Column({ name: 'created_at', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
     createdAt!: Date;
 

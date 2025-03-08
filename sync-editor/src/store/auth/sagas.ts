@@ -3,7 +3,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { AxiosResponse } from 'axios';
 import { Gateway } from '@stombie/retube-core';
 import api from '../../api';
-import { login, register, reset, updateTokens } from './slice';
+import { login, logout, register, reset, updateTokens } from './slice';
 import { AuthCredentials, isOAuthTokens, UpdateTokensPayload } from './types';
 
 const {
@@ -46,6 +46,11 @@ function* loginSaga(action: PayloadAction<AuthCredentials>) {
     }
 }
 
+function* logoutSaga() {
+    yield call([localStorage, localStorage.removeItem], VITE_TOKENS_STORAGE_KEY);
+    yield put(reset());
+}
+
 function* registerSaga(action: PayloadAction<AuthCredentials>) {
     try {
         yield call(api.post, '/auth/register', action.payload);
@@ -60,5 +65,6 @@ export function* authRootSaga() {
         fork(authInit),
         takeLatest(login.type, loginSaga),
         takeLatest(register.type, registerSaga),
+        takeLatest(logout.type, logoutSaga),
     ]);
 }

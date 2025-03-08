@@ -15,7 +15,7 @@ export namespace Gateway {
     export interface WithRefreshToken extends Pick<OAuthTokens, 'refreshToken'> {
     }
 
-    type VideoBase = Pick<Video, 'title' | 'description' | 'duration'>;
+    type VideoBase = Pick<Video, 'title' | 'description'>;
     type FlowBase = Pick<Flow, 'id' | 'status'>
 
     export interface VideoPayload extends VideoBase {

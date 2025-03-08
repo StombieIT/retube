@@ -27,6 +27,7 @@ const authSlice = createSlice({
 });
 
 export const login = createAction<AuthCredentials>('auth/login');
+export const logout = createAction('auth/logout');
 export const register = createAction<AuthCredentials>('auth/register');
 export const { updateTokens, reset } = authSlice.actions;
 export const authReducer = authSlice.reducer;

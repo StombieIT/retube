@@ -1,0 +1,26 @@
+.field {
+    display: flex;
+    background-color: #ffffff;
+    width: 100%;
+    font-size: 20px;
+    border: 2px solid var(--c-main);
+    border-radius: 20px;
+    padding: 10px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover .content {
+        opacity: 1;
+    }
+}
+
+.content {
+    flex-grow: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    opacity: 0.5;
+    transition: .15s opacity;
+    font-size: 18px;
+}

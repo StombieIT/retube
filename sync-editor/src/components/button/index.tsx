@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, FC, PropsWithChildren } from 'react';
+import { ButtonHTMLAttributes, FC, PropsWithChildren, ReactNode } from 'react';
 import cn from 'classnames';
 
 import css from './styles.module.styl';
@@ -8,12 +8,15 @@ export interface ButtonProps
         PropsWithChildren {
     view?: 'primary' | 'ordinary';
     rounded?: boolean;
+    leftSlot?: ReactNode;
 }
 
 export const Button: FC<ButtonProps> = ({
     className,
     view = 'primary',
     rounded = true,
+    children,
+    leftSlot,
     ...props
 }) => {
     const buttonClasses = cn(
@@ -26,6 +29,9 @@ export const Button: FC<ButtonProps> = ({
     );
 
     return (
-        <button {...props} className={buttonClasses} />
+        <button {...props} className={buttonClasses}>
+            {leftSlot}
+            {children}
+        </button>
     );
 };
