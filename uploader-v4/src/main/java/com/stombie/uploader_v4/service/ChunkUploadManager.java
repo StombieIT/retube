@@ -22,12 +22,15 @@ public class ChunkUploadManager {
 
     private final ApplicationEventPublisher eventPublisher;
     private final UploadSessionRepository uploadSessionRepository;
+    private final FFlowCoordinatorService fflowCoordinator;
 
     @Autowired
     public ChunkUploadManager(ApplicationEventPublisher eventPublisher,
-                              UploadSessionRepository uploadSessionRepository) {
+                              UploadSessionRepository uploadSessionRepository,
+                              FFlowCoordinatorService fflowCoordinator) {
         this.eventPublisher = eventPublisher;
         this.uploadSessionRepository = uploadSessionRepository;
+        this.fflowCoordinator = fflowCoordinator;
     }
 
     @EventListener
@@ -62,7 +65,9 @@ public class ChunkUploadManager {
         }
         logger.info("Successfully validated chunk {}", correlationId);
 
-        // TODO: добавить логику работы с fflow
+        // TODO: добавить логику работы с fflow api
+        fflowCoordinator.ensureFlowUrl(sessionId);
+
         uploadSession.setUploadedBytes(updatedUploadedBytes);
         uploadSessionRepository.save(uploadSession);
 
