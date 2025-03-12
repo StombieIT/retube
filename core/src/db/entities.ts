@@ -42,7 +42,7 @@ export class Flow {
     id!: string;
 
     @Column({
-        type: 'enum',
+        type: 'varchar',
         enum: FlowStatus,
         default: FlowStatus.CREATED,
     })
@@ -80,7 +80,7 @@ export class Video {
     uploadedAt?: Date;
 
     @Column({
-        type: 'enum',
+        type: 'varchar',
         enum: VideoStatus,
         default: VideoStatus.CREATED,
     })
