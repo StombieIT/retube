@@ -1,4 +1,4 @@
-package com.stombie.uploader_v4.model;
+package com.stombie.uploader_v4.model.api;
 
 import lombok.Getter;
 import org.springframework.lang.Nullable;
