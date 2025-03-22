@@ -1,0 +1,70 @@
+@startuml AuthModule
+top to bottom direction
+
+skinparam classAttributeIconSize 0
+skinparam padding 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam dpi 120
+
+' --- Интерфейсы и зависимости ---
+interface ConfigService {
+  +get(key: string, defaultValue?: any): any
+}
+
+interface JwtService {
+  +signAsync(payload, options): Promise<string>
+  +verifyAsync(token: string): Promise<{ sub: string }>
+}
+
+interface Repository<T> {
+  +findOneBy(criteria: Partial<T>): Promise<T | null>
+  +create(data: Partial<T>): T
+  +save(entity: T): Promise<T>
+}
+
+' --- Сущность ---
+class User {
+  +id: string
+  +email: string
+  +passwordHash: string
+  +createdAt: Date
+}
+
+' --- Сервис ---
+class AuthService {
+  -passwordHashSecret: string
+  -refreshTokenLifetime: string
+  -accessTokenLifetime: string
+
+  +constructor(configService: ConfigService, jwt: JwtService, users: Repository<User>)
+  +register(email: string, password: string): Promise<User>
+  +login(email: string, password: string): Promise<OAuthTokens>
+  +refreshToken(token: string): Promise<OAuthTokens>
+  +verifyUserByToken(token: string): Promise<User>
+}
+
+' --- Контроллер ---
+class AuthController {
+  +constructor(auth: AuthService)
+  +register(dto: RegisterDto): Response
+  +login(dto: LoginDto): Response
+  +refresh(dto: RefreshDto): Response
+}
+
+' --- Guard ---
+class AuthGuard {
+  +constructor(auth: AuthService)
+  +canActivate(context: ExecutionContext): Promise<boolean>
+}
+
+' --- Связи между компонентами ---
+AuthController --> AuthService : вызывает бизнес-логику
+AuthService --> Repository : доступ к данным пользователей
+AuthService --> JwtService : создание и верификация токенов
+AuthService --> ConfigService : доступ к параметрам конфигурации
+AuthGuard --> AuthService : проверка подлинности токена
+AuthGuard --> User : устанавливает пользователя в запрос
+
+@enduml
