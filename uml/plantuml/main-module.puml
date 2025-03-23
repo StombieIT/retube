@@ -1,0 +1,93 @@
+@startuml MainModule
+
+skinparam classAttributeIconSize 0
+skinparam padding 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam dpi 120
+
+' --- Интерфейсы и сущности ---
+interface Repository<T> {
+  +findOne(criteria: object): Promise<T | null>
+  +create(entity: Partial<T>): T
+  +save(entity: T | T[]): Promise<T | T[]>
+}
+
+class User
+class Video
+class Flow
+class UploadSession
+
+' --- Контроллер ---
+class AppController {
+  -logger: Logger
+  +constructor(app: AppService)
+  +me(request: Request): Promise<Response.Me>
+  +createVideo(request: Request, dto: CreateVideo): Promise<Response.CreateVideo>
+  +upload(request: Request, sessionId: string, startByte: string, size: string, content: Buffer): Promise<Response.Upload>
+  +state(videoId: string): Promise<Response.State>
+}
+
+' --- Сервисы и компоненты ---
+class AppService {
+  -logger: Logger
+  +constructor(chunkExchange: ChunkExchangeService,
+               users: Repository<User>,
+               videos: Repository<Video>,
+               flows: Repository<Flow>,
+               uploadSessions: Repository<UploadSession>,
+               videoConverter: VideoConverterService)
+  +createVideo(payload: VideoPayload, owner: User): Promise<SmallVideo>
+  +upload(chunk: VideoChunk, owner: User): Promise<void>
+  +state(videoId: string): Promise<SmallVideo>
+}
+
+class ChunkExchangeService {
+  +constructor(configService: ConfigService)
+  +push(chunk: VideoChunk): Promise<void>
+}
+
+class VideoConverterService {
+  +constructor(flowConverter: FlowConverterService)
+  +toSmallVideo(video: Video): SmallVideo
+}
+
+class AuthGuard {
+  +constructor(auth: AuthService)
+  +canActivate(context: ExecutionContext): Promise<boolean>
+}
+
+class UploadSessionConverterService {
+  +toSmallUploadSession(session: UploadSession): SmallUploadSession
+}
+
+class FlowConverterService {
+  +constructor(uploadSessionConverter: UploadSessionConverterService)
+  +toSmallFlow(flow: Flow, distributionUrls?: Record<Format, string>): SmallFlow
+}
+
+class ConfigService {
+  +get(key: string, defaultValue?: any): any
+}
+
+' --- Связи ---
+AppController --> AppService : вызывает соответствующие методы
+AppController --> AuthGuard : использует для защиты эндпоинтов
+
+AppService --> Repository : доступ к данным
+AppService --> ChunkExchangeService : отправка видеосегментов
+AppService --> VideoConverterService : преобразование сущностей
+
+ChunkExchangeService --> ConfigService : получение конфигурации
+
+VideoConverterService --> FlowConverterService : использует для конвертации
+FlowConverterService --> UploadSessionConverterService : использует для конвертации
+
+' --- Связи с моделями БД ---
+Repository --> User
+Repository --> Video
+Repository --> Flow
+Repository --> UploadSession
+
+@enduml
