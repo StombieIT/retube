@@ -16,9 +16,10 @@ export class AppController {
     async me(@Req() request: Request): Promise<Gateway.Response.Me> {
         try {
             const { user } = request;
+            const { id, email, createdAt } = user;
             return {
                 status: 'success',
-                payload: user,
+                payload: { id, email, createdAt },
             };
         } catch (error) {
             throw new HttpException(
