@@ -1,0 +1,53 @@
+@startuml Uploader
+package "Сервис-загрузчик" {
+
+  class ChunkConsumerService {
+    - amqpChannel: Channel
+    - hangingChunkCorrelationIds: Set<String>
+    - applicationEventPublisher: ApplicationEventPublisher
+    - uploadQueue: String
+    - replyQueue: String
+    - exchange: String
+    + init(): void
+    + acceptChunk(event: AcceptChunkEvent): void
+    + rejectChunk(event: RejectChunkEvent): void
+    - reply(correlationId: String, status: String, errorMessage: String): void
+    - handleDelivery(consumerTag: String, delivery: Delivery): void
+    - handleCancelDelivery(consumerTag: String): void
+  }
+
+  class UploadManager {
+    - lock: ReentrantLock
+    - eventPublisher: ApplicationEventPublisher
+    - flowRepository: FlowRepository
+    - uploadSessionRepository: UploadSessionRepository
+    - videoRepository: VideoRepository
+    - fflowCoordinator: FFlowCoordinatorService
+    + handleVideoChunk(event: ChunkReceivedEvent): void
+    + handleCleanEvent(event: CleanUploadResourcesEvent): void
+  }
+
+  class CleanUploadResourcesSchedulerService {
+    - eventPublisher: ApplicationEventPublisher
+    - videoTtl: int
+    + scheduleClean(): void
+  }
+
+  class FFlowCoordinatorService {
+    + ensureFlow(uploadSessionId: String): String
+    + pushToFlow(uploadSessionId: String, content: byte[]): void
+    + deleteFlow(uploadSessionId: String): void
+    + finishFlow(uploadSessionId: String, finishParams: FFlowFinishParams): void
+  }
+
+  ChunkConsumerService --> ApplicationEventPublisher : публикует Accept/Reject/Received
+  ChunkConsumerService --> ChunkUploadManager : генерирует ChunkReceivedEvent
+  ChunkUploadManager --> ApplicationEventPublisher : публикует AcceptChunkEvent / RejectChunkEvent
+  ChunkUploadManager --> FlowRepository : обновляет статус потока
+  ChunkUploadManager --> UploadSessionRepository : обновляет сессию
+  ChunkUploadManager --> VideoRepository : обновляет статус видео
+  ChunkUploadManager --> FFlowCoordinatorService : управляет потоками загрузки
+  CleanUploadResourcesSchedulerService --> ApplicationEventPublisher : публикует CleanUploadResourcesEvent
+
+}
+@enduml
