@@ -64,12 +64,16 @@ public class ChunkConsumerService {
 
     @EventListener
     public void acceptChunk(AcceptChunkEvent event) {
+        String correlationId = event.getCorrelationId();
+        logger.info("Successfully accepted chunk {}", correlationId);
         this.reply(event.getCorrelationId(), "ack", null);
     }
 
     @EventListener
     public void rejectChunk(RejectChunkEvent event) {
-        this.reply(event.getCorrelationId(), "nack", event.getErrorMessage());
+        String correlationId = event.getCorrelationId();
+        logger.warn("Rejecting chunk {}", correlationId);
+        this.reply(correlationId, "nack", event.getErrorMessage());
     }
 
     private void reply(String correlationId, String status, String errorMessage) {
@@ -106,8 +110,8 @@ public class ChunkConsumerService {
             AMQP.BasicProperties props = delivery.getProperties();
             Map<String, Object> headers = props.getHeaders();
             if (headers == null ||
-                    !(headers.get("x-session-id") instanceof LongString) ||
-                    !(headers.get("x-correlation-id") instanceof LongString) ||
+                    !(headers.get("x-session-id") instanceof LongString sessionIdLong) ||
+                    !(headers.get("x-correlation-id") instanceof LongString correlationIdLong) ||
                     !(headers.get("x-start-byte") instanceof Number) ||
                     !(headers.get("x-size") instanceof Number)) {
                 amqpChannel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
@@ -116,12 +120,10 @@ public class ChunkConsumerService {
 
             amqpChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 
-            LongString sessionIdLong = (LongString) headers.get("x-session-id");
-            LongString correlationIdLong = (LongString) headers.get("x-correlation-id");
             String sessionId = toString(sessionIdLong);
             String correlationId = toString(correlationIdLong);
-            long startByte = ((Number) headers.get("x-start-byte")).longValue();
-            long size = ((Number) headers.get("x-size")).longValue();
+            int startByte = ((Number) headers.get("x-start-byte")).intValue();
+            int size = ((Number) headers.get("x-size")).intValue();
             byte[] content = delivery.getBody();
 
             // Добавляем correlationId в список "висящих" (ожидающих) чанков

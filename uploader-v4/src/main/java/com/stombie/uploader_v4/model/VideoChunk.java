@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 public class VideoChunk {
     private final String sessionId;
-    private final long startByte;
-    private final long size;
+    private final int startByte;
+    private final int size;
     private final byte[] content;
 
-    public VideoChunk(String sessionId, long startByte, long size, byte[] content) {
+    public VideoChunk(String sessionId, int startByte, int size, byte[] content) {
         this.sessionId = sessionId;
         this.startByte = startByte;
         this.size = size;
