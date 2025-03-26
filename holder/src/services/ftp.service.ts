@@ -25,8 +25,6 @@ export class FtpService implements OnModuleInit, OnModuleDestroy {
 
     async onModuleInit() {
         this.ftpServer.on('login', (_, resolve) => {
-            // TODO: мб добавить авторизацию
-            // Разрешаем все подключения
             this.logger.log('Attempt to login');
             resolve({ root: this.rootPath });
         });
