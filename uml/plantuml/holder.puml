@@ -1,0 +1,54 @@
+@startuml
+skinparam rankdir TB
+skinparam packageStyle rectangle
+
+' Конфигурация
+package "Конфигурация" {
+  class AppConfig <<registerAs>>
+  class FtpConfig <<registerAs>>
+}
+
+' NestJS Framework
+package "NestJS Framework" {
+  class ConfigModule << (E,#FFAAAA) >>
+  class ServeStaticModule << (E,#FFAAAA) >>
+  class ConfigService << (E,#FFAAAA) >>
+}
+
+' Модули приложения
+package "Модули" {
+  class DistributionModule {
+    +imports: ServeStaticModule.forRoot(...), ConfigModule.forRoot(load: [AppConfig])
+  }
+  class UploadModule {
+    +imports: ConfigModule.forRoot(load: [FtpConfig, AppConfig])
+  }
+}
+
+' Сервисы
+package "Сервисы" {
+  class FtpService {
+    - logger: Logger
+    - ftpServer: FtpSrv
+    - rootPath: string
+    - url: string
+  }
+}
+
+' Внешние библиотеки
+package "Внешние" {
+  class FtpSrv << (E,#FFAAAA) >>
+}
+
+' Связи между элементами
+DistributionModule --> ServeStaticModule : инициализирует HTTP сервер раздачи статики \n(ServeStaticModule.forRoot)
+DistributionModule --> ConfigModule : загружает AppConfig
+UploadModule --> ConfigModule : загружает FtpConfig и AppConfig
+FtpService --> ConfigService : получает настройки
+FtpService --> FtpSrv : инициализирует FTP сервер
+UploadModule --> FtpService : использует для FTP
+
+AppConfig ..> ConfigModule : registerAs
+FtpConfig ..> ConfigModule : registerAs
+
+@enduml
