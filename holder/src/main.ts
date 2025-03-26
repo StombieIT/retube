@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { UploaderModule } from './uploader.module';
+import { UploadModule } from './upload.module';
 import { DistributionModule } from './distribution.module';
 
 const {
@@ -9,7 +9,7 @@ const {
 async function bootstrap() {
     const [distribution] = await Promise.all([
         NestFactory.create(DistributionModule),
-        NestFactory.createApplicationContext(UploaderModule),
+        NestFactory.createApplicationContext(UploadModule),
     ]);
 
     distribution.enableCors({

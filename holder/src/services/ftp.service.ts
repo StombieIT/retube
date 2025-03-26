@@ -12,12 +12,14 @@ export class FtpService implements OnModuleInit, OnModuleDestroy {
     constructor(configService: ConfigService) {
         this.rootPath = configService.get<string>('app.rootPath');
         this.url = configService.get<string>('ftp.url', 'ftp://0.0.0.0:21');
+        const pasvMinPort = configService.get<number>('ftp.pasvMinPort', 4000);
+        const pasvMaxPort = configService.get<number>('ftp.pasvMaxPort', 4004);
 
         this.ftpServer = new FtpSrv({
             url: this.url,
             anonymous: true,
-            pasv_min: 4000,
-            pasv_max: 4004,
+            pasv_min: pasvMinPort,
+            pasv_max: pasvMaxPort,
         });
     }
 

@@ -13,4 +13,4 @@ import { FtpService } from './services/ftp.service';
     ],
     providers: [FtpService],
 })
-export class UploaderModule {}
+export class UploadModule {}
