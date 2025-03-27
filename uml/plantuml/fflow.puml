@@ -1,0 +1,78 @@
+@startuml FFlow
+skinparam style strictuml
+
+package "Контроллер" {
+    class AppController {
+        - app: AppService
+        - globalPrefix: string
+        - host: string
+        + createFlow(uploadSessionId)
+        + deleteFlow(uploadSessionId)
+        + pushToFlow(uploadSessionId, buffer)
+        + finishFlow(uploadSessionId, finishParams)
+    }
+}
+
+package "Сервисы" {
+    class AppService {
+        - fflow: FFlowService
+        - path: PathService
+        - ftpSessionsOrchestrator: FtpSessionsOrchestratorService
+        - dashManifestFilename: string
+        - hlsManifestFilename: string
+        + createFlow(uploadSessionId)
+        + deleteFlow(uploadSessionId)
+        + finishFlow(uploadSessionId, finishParams)
+        + pushToFlow(uploadSessionId, buffer)
+    }
+
+    class FFlowService {
+        - flowBySessionId: Map<string, ChildProcess>
+        - videoCodec: string
+        - audioCodec: string
+        - videoBitrate: string
+        - audioBitrate: string
+        - dashSegmentDuration: number
+        - dashSegmentFormat: string
+        - hlsTime: number
+        - hlsPlaylistType: string
+        - logLevel: string
+        + createFlow(uploadSessionId, params)
+        + deleteFlow(uploadSessionId)
+        + pushToFlow(uploadSessionId, buffer)
+        + finishFlow(uploadSessionId)
+    }
+
+    class PathService {
+        - dataFolder: string
+        + uploadDir(uploadSessionId)
+        + dashFFlow(uploadSessionId, filename)
+        + hlsFFlow(uploadSessionId, filename)
+        + fflow(uploadSessionId, format, filename)
+    }
+
+    class FtpSessionsOrchestratorService {
+        - serverHost: string
+        - serverPort: number
+        + create(): FtpSession
+    }
+}
+
+package "Утилиты" {
+    class FtpSession {
+        - client: Client
+        + launch()
+        + createDir(dirPath)
+        + uploadFromDir(source, toRemotePath)
+        + destroy()
+    }
+}
+
+' Взаимодействия (зависимости между компонентами):
+AppController --> AppService : Делегирует вызовы
+AppService --> FFlowService : Управляет процессами FFmpeg
+AppService --> PathService : Формирует пути к директориям/файлам
+AppService --> FtpSessionsOrchestratorService : Инициирует FTP-сессии
+FtpSessionsOrchestratorService --> FtpSession : Возвращает экземпляр FTP клиента
+
+@enduml
