@@ -1,4 +1,4 @@
-@startuml FFlow
+@startuml
 skinparam style strictuml
 
 package "Контроллер" {
@@ -68,11 +68,23 @@ package "Утилиты" {
     }
 }
 
+package "Конфигурация" {
+    class ConfigService {
+        + get<T>(propertyPath: string, defaultValue?: T): T
+    }
+}
+
 ' Взаимодействия (зависимости между компонентами):
 AppController --> AppService : Делегирует вызовы
 AppService --> FFlowService : Управляет процессами FFmpeg
 AppService --> PathService : Формирует пути к директориям/файлам
 AppService --> FtpSessionsOrchestratorService : Инициирует FTP-сессии
-FtpSessionsOrchestratorService --> FtpSession : Возвращает экземпляр FTP клиента
+
+AppService --> ConfigService
+FFlowService --> ConfigService
+PathService --> ConfigService
+FtpSessionsOrchestratorService --> ConfigService
+
+FtpSessionsOrchestratorService --> FtpSession : Возвращает FTP клиента
 
 @enduml
