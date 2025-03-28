@@ -14,7 +14,6 @@ import com.stombie.uploader_v4.model.api.FFlowFinishParams;
 import com.stombie.uploader_v4.repository.FlowRepository;
 import com.stombie.uploader_v4.repository.UploadSessionRepository;
 import com.stombie.uploader_v4.repository.VideoRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
