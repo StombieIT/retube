@@ -1,0 +1,68 @@
+@startuml SyncEditorSagas
+left to right direction
+skinparam componentStyle rectangle
+
+' === Redux Actions ===
+rectangle "login" as A1
+rectangle "register" as A2
+rectangle "logout" as A3
+rectangle "startUpload" as A4
+rectangle "addCandidateVideoAction" as A5
+rectangle "deleteCandidateByIdAction" as A6
+
+' === Саги ===
+component "authInit" as S1
+component "loginSaga" as S2
+component "registerSaga" as S3
+component "logoutSaga" as S4
+component "startUploadSaga" as S5
+component "uploadFlowSaga\n(для каждого потока)" as S6
+component "pollVideoState" as S7
+component "addCandidateVideoSaga" as S8
+component "deleteCandidateByIdSaga" as S9
+
+' === Сторонние зависимости ===
+component "API"
+component "VideoManager"
+
+' === Redux State ===
+component "AuthState"
+component "FlowCandidates"
+component "UploadState"
+component "Stage"
+component "Distribution"
+
+' === Связи экшенов и саг ===
+A1 --> S2 : запускает
+A2 --> S3 : запускает
+A3 --> S4 : запускает
+A4 --> S5 : запускает
+A5 --> S8 : запускает
+A6 --> S9 : запускает
+
+' === Связи между сагами и зависимостями ===
+S1 --> AuthState : updateTokens / reset
+S1 --> API : get /me
+S2 --> API : post /auth/login
+S2 --> AuthState : updateTokens
+S3 --> API : post /auth/register
+S4 --> AuthState : reset
+
+S5 --> VideoManager : getVideoById,\ntransferVideo
+S5 --> API : post /create-video
+S5 --> UploadState : updateFlows,\nupdateCommonStatus
+S5 --> Stage : changeStage(LOADING,\nUPLOADING,\nDISTRIBUTION)
+S5 --> S6 : fork (запуск для каждого потока)
+S5 --> S7 : fork (периодический опрос)
+
+S6 --> API : post /upload/{sessionId}
+S7 --> API : get /state/{videoId}
+S7 --> UploadState : updateCommonStatus\nupdateFlows
+
+S8 --> VideoManager : addVideo
+S9 --> VideoManager : removeVideoById
+S9 --> FlowCandidates : deleteFlowById
+
+S5 --> Distribution : setPlayerUrl
+
+@enduml
