@@ -1,0 +1,73 @@
+@startuml ВидеоПлеер
+skinparam classAttributeIconSize 0
+
+package "ВидеоПлеер" {
+
+  class App {
+    + mainRef: Ref<HTMLDivElement>
+    + isControlsVisible: boolean
+    + onMouseMove(evt: MouseEvent)
+    + onClick(evt: MouseEvent)
+    + onFullScreenChangeAttempt()
+  }
+
+  class Slot {
+    + flowId: string
+    + onClick?: () => void
+  }
+
+  class Controls {
+    + onFullScreenChangeAttempt?: () => void
+  }
+
+  class TimeRange {
+    + onMouseEnter()
+    + onMouseLeave()
+    + onMouseDown()
+    + onMouseMove(evt, element)
+    + onMouseUp(evt, element)
+  }
+
+  class TimeIndicator {
+    + currentTime: number
+    + duration: number
+  }
+
+  class VolumeControl {
+    + volume: number
+    + isMuted: boolean
+    + onMouseEnter()
+    + onMouseLeave()
+    + onMouseDown()
+    + onMouseMove(evt, element)
+    + onMouseUp(evt, element)
+  }
+
+  class Range {
+    + fact?: number
+    + desirable?: number
+    + onMouseMove(evt, el)
+    + onMouseUp(evt, el)
+  }
+
+  ' === Взаимодействия ===
+
+  App --> Slot : передаёт flowId\nобрабатывает onClick
+  App --> Controls : отображает панель\nпередаёт onFullScreenChangeAttempt
+  App ..> window : подписка на onmousemove, onclick,\nfullscreenchange
+
+  Controls --> TimeRange : отображает компонент временной шкалы
+  Controls --> TimeIndicator : отображает индикатор времени
+  Controls --> VolumeControl : отображает контрол громкости
+
+  TimeRange --> Range : передаёт прогресс и события мыши
+  VolumeControl --> Range : управляет громкостью через Range
+
+  TimeRange --> Controls : вызывает seek при onMouseUp
+  VolumeControl --> Controls : вызывает setVolume/toggleSound
+
+  Controls <-- App : вызывает onFullScreenChangeAttempt
+  Slot <-- App : onClick для переключения потока
+}
+
+@enduml
