@@ -18,7 +18,7 @@ export const Logo: FC<LogoProps> = ({ className }) => {
         <div className={logoClasses}>
             <PlayIcon />
             <span className={css.text}>
-                Retube
+                SynchroTube
             </span>
         </div>
     );
