@@ -42,7 +42,7 @@ function* loginSaga(action: PayloadAction<AuthCredentials>) {
         yield call([localStorage, localStorage.setItem], VITE_TOKENS_STORAGE_KEY, tokensStringified);
         yield put(updateTokens(tokens));
     } catch (error) {
-        // ignore
+        yield call(console.error, 'Got error while logging in', error);
     }
 }
 
@@ -55,8 +55,7 @@ function* registerSaga(action: PayloadAction<AuthCredentials>) {
     try {
         yield call(api.post, '/auth/register', action.payload);
     } catch (error) {
-        // ignore
-        // TODO: add notification
+        yield call(console.error, 'Got error while registering', error);
     }
 }
 

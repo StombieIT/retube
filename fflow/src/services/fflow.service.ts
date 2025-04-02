@@ -38,7 +38,6 @@ export class FFlowService {
         this.logLevel = configService.get<string>('ffmpeg.logLevel', 'debug');
     }
 
-    // TODO: мб добавить подвязку не на uploadSessionId, а на встроенном айдишнике линии
     createFlow(uploadSessionId: string, { dashOutput, hlsOutput }: CreateFlowParams) {
         const args = ffmpegArgsBuilder()
             .addInput('pipe:0')
@@ -73,13 +72,11 @@ export class FFlowService {
     async deleteFlow(uploadSessionId: string) {
         this.checkFlowExistance(uploadSessionId);
         await this.killFlow(uploadSessionId);
-        // TODO: добавить очистку ресурсов
     }
 
     pushToFlow(uploadSessionId: string, buffer: Buffer) {
         this.checkFlowExistance(uploadSessionId);
         this.flowBySessionId[uploadSessionId].stdin.write(buffer);
-        // TODO: добавить ожидание обработки данных ffmpeg'ом
     }
 
     async finishFlow(uploadSessionId: string): Promise<void> {

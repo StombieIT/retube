@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { Flow, Gateway, IVideoChunk, NoRightsError, NotFoundError, UploadSession, User, Video } from '@stombie/retube-core';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChunkExchangeService } from './chunk-exchange.service';
 import { VideoConverterService } from './converters/video.converter';
@@ -15,12 +15,6 @@ interface Pusher {
 
 @Injectable()
 export class AppService {
-    private readonly logger = new Logger(AppService.name);
-    // TODO: remove
-    private readonly pusherById: Record<number, Pusher> = {};
-
-    private video?: Video;
-
     constructor(private readonly chunkExchange: ChunkExchangeService,
                 @InjectRepository(User) private readonly users: Repository<User>,
                 @InjectRepository(Video) private readonly videos: Repository<Video>,

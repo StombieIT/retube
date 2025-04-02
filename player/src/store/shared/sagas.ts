@@ -37,7 +37,6 @@ function* fillContent() {
         yield put(setMainFlowId(mainFlowId));
     } catch (error) {
         // @ts-ignore
-        // TODO: добавить error
     }
 }
 

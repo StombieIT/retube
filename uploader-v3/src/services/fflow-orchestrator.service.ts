@@ -3,7 +3,6 @@ import { FFlow } from '@stombie/retube-core';
 import { ApiService } from './api.service';
 import { FFlowCacheService } from './fflow-cache.service';
 
-// TODO: мб вообще не нужен, перенести все в AppService
 @Injectable()
 export class FFlowOrchestratorService {
     private readonly logger = new Logger(FFlowOrchestratorService.name);    

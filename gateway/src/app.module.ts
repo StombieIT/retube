@@ -24,7 +24,7 @@ const DB_ENTITIES = [User, Video, Flow, UploadSession];
         TypeOrmModule.forRoot({
             type: 'postgres',
             url: process.env.DB_CONNECTION_STRING ?? 'postgresql://postgres:postgres@localhost:5432/retube',
-            synchronize: true, // TODO: add env checking
+            synchronize: true,
             entities: DB_ENTITIES,
         }),
         TypeOrmModule.forFeature(DB_ENTITIES),

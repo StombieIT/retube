@@ -11,8 +11,7 @@ export class FtpSessionsOrchestratorService {
         this.serverHost = configService.get<string>('ftp.serverHost', 'localhost');
         this.serverPort = configService.get<number>('ftp.serverPort', 21);
     }
-    
-    // TODO: добавить ограничение на количество сессий
+
     async create() {
         const ftpSession = new FtpSession({
             host: this.serverHost,

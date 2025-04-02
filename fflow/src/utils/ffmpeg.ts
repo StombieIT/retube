@@ -21,7 +21,6 @@ class FFmpegArgsBuilder {
 
     addArg(key: FFmpegArg, value: string | number | boolean = true): this {
             if (typeof value === 'boolean') {
-            // Для аргументов-флагов без значения
             if (value) {
                 this.args.push(key);
             }
@@ -31,7 +30,6 @@ class FFmpegArgsBuilder {
         return this;
     }
 
-    // Мб дополнить
     addInput(input: string): this {
         return this.addArg(FFmpegArg.INPUT, input);
     }
