@@ -28,28 +28,26 @@ import java.util.Set;
 public class ChunkConsumerService {
     private static final Logger logger = LoggerFactory.getLogger(ChunkConsumerService.class);
 
-    private static String toString(LongString longString) {
+    private static final String toString(LongString longString) {
         return new String(longString.getBytes(), StandardCharsets.UTF_8);
     }
 
     private final Channel amqpChannel;
     private final Set<String> hangingChunkCorrelationIds;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final String uploadQueue;
-    private final String replyQueue;
-    private final String exchange;
+
+    @Value("${chunkQueue.amqp.uploadQueue}")
+    private String uploadQueue;
+    @Value("${chunkQueue.amqp.replyQueue}")
+    private String replyQueue;
+    @Value("${chunkQueue.amqp.exchange}")
+    private String exchange;
 
     @Autowired
-    public ChunkConsumerService(Channel amqpChannel, ApplicationEventPublisher applicationEventPublisher,
-                                @Value("${chunkQueue.amqp.uploadQueue}") String uploadQueue,
-                                @Value("${chunkQueue.amqp.replyQueue}") String replyQueue,
-                                @Value("${chunkQueue.amqp.exchange}") String exchange) {
+    public ChunkConsumerService(Channel amqpChannel, ApplicationEventPublisher applicationEventPublisher) {
         this.amqpChannel = amqpChannel;
         this.hangingChunkCorrelationIds = new HashSet<>();
         this.applicationEventPublisher = applicationEventPublisher;
-        this.uploadQueue = uploadQueue;
-        this.replyQueue = replyQueue;
-        this.exchange = exchange;
     }
 
     @PostConstruct
