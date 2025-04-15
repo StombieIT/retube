@@ -1,0 +1,88 @@
+@startuml SyncEditor
+
+class App {
+  +stage: Stage
+  +isAuthenticated: boolean
+}
+
+class Uploading {
+  +flows: UploadingFlow[]
+}
+
+class SyncForm {
+  +candidates: string[]
+  +title: string
+  +description: string
+}
+
+class Distribution {
+  +playerUrl: string
+}
+
+class AuthModal {
+  +email: string
+  +password: string
+  +passwordRepeat: string
+  +stage: 'login' | 'register'
+}
+
+class Loading {}
+
+class LogoutButton {}
+
+class Candidate {
+  +video?: Blob
+  +progress?: number
+  +onVideoDropped?: (video: Blob) => void
+  +onDelete?: () => void
+}
+
+class Loader {
+  +progress: number
+}
+
+class HTMLVideoElement {}
+
+class FileInput {}
+
+class Logo {}
+
+class MainField {
+  +type: 'dynamic' | 'static'
+  +content?: string
+  +staticContent?: string
+  +rightSlot?: ReactNode
+  +onChangeContent?: (text: string) => void
+}
+
+class HTMLIFrameElement {}
+
+class Button {}
+
+class Input {
+  +type: string
+  +value: string
+  +title?: string
+  +onChange: (e) => void
+}
+
+' Relations
+App --> Uploading : при stage = UPLOADING
+App --> SyncForm : при stage = SYNCHRONIZING
+App --> Distribution : при stage = DISTRIBUTION
+App --> AuthModal : если не авторизован
+App --> Loading : при stage = LOADING
+App --> LogoutButton : если авторизован
+
+Uploading --> Candidate : для каждого кандидата
+SyncForm --> MainField : поля title/description
+Distribution --> HTMLIFrameElement : URL в iframe
+AuthModal --> Button : переключение
+AuthModal --> Input : email/password
+
+Candidate --> Loader : если есть progress
+Candidate --> HTMLVideoElement : если есть video
+Candidate --> FileInput : выбор файла
+Candidate --> Logo
+
+@enduml
