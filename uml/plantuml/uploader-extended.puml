@@ -1,0 +1,196 @@
+@startuml Uploader
+package "Сервис-загрузчик" {
+
+  class ChunkConsumerService {
+    - amqpChannel: Channel
+    - hangingChunkCorrelationIds: Set<String>
+    - applicationEventPublisher: ApplicationEventPublisher
+    - uploadQueue: String
+    - replyQueue: String
+    - exchange: String
+    + init(): void
+    + acceptChunk(event: AcceptChunkEvent): void
+    + rejectChunk(event: RejectChunkEvent): void
+    - reply(correlationId: String, status: String, errorMessage: String): void
+    - handleDelivery(consumerTag: String, delivery: Delivery): void
+    - handleCancelDelivery(consumerTag: String): void
+  }
+
+  class UploadManager {
+    - lock: ReentrantLock
+    - eventPublisher: ApplicationEventPublisher
+    - flowRepository: FlowRepository
+    - uploadSessionRepository: UploadSessionRepository
+    - videoRepository: VideoRepository
+    - fflowCoordinator: FFlowCoordinatorService
+    + handleVideoChunk(event: ChunkReceivedEvent): void
+    + handleCleanEvent(event: CleanUploadResourcesEvent): void
+  }
+
+  class CleanUploadResourcesSchedulerService {
+    - eventPublisher: ApplicationEventPublisher
+    - videoTtl: int
+    + scheduleClean(): void
+  }
+
+  class FFlowCoordinatorService {
+    + ensureFlow(uploadSessionId: String): String
+    + pushToFlow(uploadSessionId: String, content: byte[]): void
+    + deleteFlow(uploadSessionId: String): void
+    + finishFlow(uploadSessionId: String, finishParams: FFlowFinishParams): void
+  }
+
+  class FFlowCacheService {
+    - redisTemplate: StringRedisTemplate
+    + addFFlowUrl(uploadSessionId: String, fflowUrl: String): void
+    + getFFlowUrl(uploadSessionId: String): String
+    + deleteFFlowUrl(uploadSessionId: String): String
+  }
+
+  class ApiService {
+    - webClient: WebClient
+    - baseWebClient: WebClient
+    + createFlow(uploadSessionId: String): FFlowCreateResponse
+    + deleteFlow(deleteUrl: String): FFlowBaseResponse
+    + finishFlow(finishUrl: String, params: FFlowFinishParams): FFlowBaseResponse
+    + pushToFlow(pushUrl: String, data: byte[]): FFlowBaseResponse
+  }
+
+  class ChunkQueueConfiguration {
+    - connectionString: String
+    + connectionFactory(): Connection
+    + channel(): Channel
+  }
+
+  class FFlowCacheConfiguration {
+    - host: String
+    - port: int
+    - db: int
+    + redisConfiguration(): RedisConfiguration
+    + redisConnectionFactory(): LettuceConnectionFactory
+  }
+
+  class FFlowFinishParams {
+    - savingPath: String
+    + getSavingPath(): String
+  }
+
+  class FFlowCreateResponse {
+    - flowUrl: String
+    + getFlowUrl(): String
+  }
+
+  class FFlowBaseResponse {
+    - status: String
+    - message: String
+    + getStatus(): String
+    + getMessage(): String
+  }
+
+  class VideoChunk {
+    - sessionId: String
+    - startByte: int
+    - size: int
+    - content: byte[]
+    + toString(): String
+  }
+
+  class Flow {
+    - id: UUID
+    - status: FlowStatus
+    - createdAt: Instant
+    - uploadedAt: Instant
+  }
+
+  class UploadSession {
+    - id: UUID
+    - createdAt: Instant
+  }
+
+  class Video {
+    - id: UUID
+    - title: String
+    - description: String
+    - createdAt: Instant
+    - uploadedAt: Instant
+    - status: VideoStatus
+  }
+
+  class FlowRepository
+  class UploadSessionRepository
+  class VideoRepository
+
+  enum FlowStatus {
+    CREATED
+    UPLOADING
+    PROCESSING
+    DISTRIBUTED
+    HIDDEN
+  }
+
+  enum VideoStatus {
+    CREATED
+    UPLOADING
+    DISTRIBUTED
+    BLOCKED
+  }
+
+  class AcceptChunkEvent {
+    + correlationId: String
+  }
+
+  class RejectChunkEvent {
+    + correlationId: String
+    + errorMessage: String
+  }
+
+  class ChunkReceivedEvent {
+    + correlationId: String
+    + chunk: VideoChunk
+  }
+
+  class CleanUploadResourcesEvent {
+    + videoTtl: int
+  }
+
+  ChunkConsumerService --> ApplicationEventPublisher : публикует события
+  ChunkConsumerService --> UploadManager : генерирует ChunkReceivedEvent
+  UploadManager --> ApplicationEventPublisher
+  UploadManager --> FlowRepository
+  UploadManager --> UploadSessionRepository
+  UploadManager --> VideoRepository
+  UploadManager --> FFlowCoordinatorService
+  CleanUploadResourcesSchedulerService --> ApplicationEventPublisher
+
+  FFlowCoordinatorService --> FFlowCacheService
+  FFlowCoordinatorService --> ApiService : вызывает FFlow API
+  ChunkConsumerService --> ChunkQueueConfiguration
+  FFlowCacheService --> FFlowCacheConfiguration
+  FFlowCreateResponse --|> FFlowBaseResponse
+
+  Flow --> Video : связан с
+  UploadSession --> Flow : связан с
+  Video --> Flow : содержит потоки
+
+  ChunkConsumerService --> AcceptChunkEvent : публикует
+  ChunkConsumerService --> RejectChunkEvent : публикует
+  ChunkConsumerService --> ChunkReceivedEvent : публикует
+  UploadManager --> ChunkReceivedEvent : обрабатывает
+  CleanUploadResourcesSchedulerService --> CleanUploadResourcesEvent : публикует
+  UploadManager --> CleanUploadResourcesEvent : обрабатывает
+
+  ChunkReceivedEvent --> VideoChunk : содержит
+
+  ApiService --> FFlowFinishParams : передаёт в finishFlow()
+  ApiService --> FFlowCreateResponse : возвращает из createFlow()
+  ApiService --> FFlowBaseResponse : возвращает из push/delete/finish
+
+  Flow --> FlowRepository : управляется через
+  UploadSession --> UploadSessionRepository : управляется через
+  Video --> VideoRepository : управляется через
+
+  Flow --> FlowStatus : использует
+  Video --> VideoStatus : использует
+
+}
+@enduml
