@@ -18,29 +18,18 @@ x-fflow-common: &fflow_common
 
 x-uploader: &uploader_common
   depends_on:
-    - video-queue
-    - cache
     - db
-    - fflow-balancer
+    - cache
+    - video-queue
+  container_name: uploader-v4
   build:
-    context: uploader-v3
-    dockerfile: ../service.Dockerfile
-  expose:
-    - "4040"
-  environment: &uploader_env
-    PORT: 4040
-    AMQP_CONNECTION_STRING: amqp://video-queue/
-    CHUNK_UPLOAD_AMQP_EXCHANGE: chunk-exchange
-    CHUNK_UPLOAD_AMQP_QUEUE: chunk-upload
-    CHUNK_REPLY_AMQP_QUEUE: chunk-reply
-    REDIS_CONNECTION_STRING: redis://cache
-    FFLOW_CACHE_DB: 0
-    API_FFLOW_URL: http://fflow-balancer:5050
-    DB_CONNECTION_STRING: postgresql://postgres:postgres@db:5432/retube
-    SCHEDULER_SLEEP_TIME: 600000
-    SCHEDULER_LIFETIME_MAXIMUM: 3600000
+    context: ./uploader-v4
   networks:
     - internal_net
+  environment: &uploader_env
+    DB_CONNECTION_STRING: jdbc:postgresql://db:5432/retube
+    FFLOW_CACHE_HOST: cache
+    AMQP_CONNECTION_STRING: amqp://video-queue
 
 services:
   holder:
@@ -157,13 +146,11 @@ services:
     container_name: uploader-standalone
     environment:
       <<: *uploader_env
-      SCHEDULER_ENABLED: true
+      SCHEDULER_CLEAR_UPLOAD_RESOURCES_ENABLED: true
   gateway:
     build:
       context: gateway
       dockerfile: ../service.Dockerfile
-    depends_on:
-      - uploader-standalone
     environment:
       - AMQP_CONNECTION_STRING=amqp://video-queue/
       - CHUNK_UPLOAD_AMQP_EXCHANGE=chunk-exchange

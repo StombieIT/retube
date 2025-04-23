@@ -98,6 +98,7 @@ public class ChunkConsumerService {
             /* Указываем в качестве первого параметра пустую строку, так как очереди не привязаны к какому-либо обменнику.
                В качестве body нагрузки передаем пустой массив, так как сообщение не содержит как таковой полезной нагрузки */
             amqpChannel.basicPublish(this.exchange, routingKey, props, new byte[0]);
+            logger.info("Published reply: {}", correlationId);
             hangingChunkCorrelationIds.remove(correlationId);
         } catch (IOException e) {
             logger.error(e.getMessage());

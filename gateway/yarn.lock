@@ -826,10 +826,10 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.5.tgz#3abc203c79b8c3e90fd6c156a0c62d5403520e12"
   integrity sha512-Uy0+khmZqUrUGm5dmMqVlnvufZRSK0FbYzVgp0UMstm+F5+W2/jnEEQyc9vo1ZR/E5ZI/B1WjjoTqBqwJL6Krw==
 
-"@stombie/retube-core@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@stombie/retube-core/-/retube-core-1.0.2.tgz#704ee30325d3015a542476b983b118b9fce706ab"
-  integrity sha512-oSNa3hoEZXahI4GLajzu10WaW+eLv9+APxpHArmo5dkxRuaaxa60Ei9Qzn+Y6oACrqalADKVrfh1vtaMUZ0PNw==
+"@stombie/retube-core@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@stombie/retube-core/-/retube-core-1.0.3.tgz#7d0abe65c03297abe14bf4569df298f6b19912d4"
+  integrity sha512-0GiEWnfSa6g52zt1DtIBv7x3YsYdEg0hzZVX58W4JBS++IbBmAUuKUSfqhFkcx9xlKVf39dmN8eWyhrHF9SUBg==
   dependencies:
     tslib "^2.8.1"
     typeorm "^0.3.20"
