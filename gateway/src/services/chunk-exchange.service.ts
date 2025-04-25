@@ -1,11 +1,13 @@
 import { randomUUID } from 'crypto';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IVideoChunk, retry, Task } from '@stombie/retube-core';
 import { connect as amqpConnect, ConfirmChannel, Connection, Message } from 'amqplib';
 
 @Injectable()
 export class ChunkExchangeService implements OnModuleInit { 
+    private readonly logger = new Logger(ChunkExchangeService.name);
+
     private readonly amqpConnectionString: string;
     private readonly chunkUploadExchange: string;
     private readonly chunkUploadQueue: string;
@@ -43,6 +45,8 @@ export class ChunkExchangeService implements OnModuleInit {
 
         const routingKey = `chunk.${chunkId}`;
 
+        this.logger.log(`Pushed: ${chunkId}`);
+
         return new Promise((resolve, reject) => {
             this.channel.publish(
                 this.chunkUploadExchange,
@@ -69,6 +73,7 @@ export class ChunkExchangeService implements OnModuleInit {
             this.channel.assertQueue(this.chunkReplyQueue, { durable: false }),
         ]);
         await this.channel.bindQueue(this.chunkUploadQueue, this.chunkUploadExchange, 'chunk.*');
+        await this.channel.bindQueue(this.chunkReplyQueue, this.chunkUploadExchange, 'reply.*');
         this.channel.consume(this.chunkReplyQueue, this.handleReply);
     }
 
@@ -83,6 +88,7 @@ export class ChunkExchangeService implements OnModuleInit {
             return;
         }
         const correlationId = headers['x-correlation-id'];
+        this.logger.log(`Reply message with cid ${correlationId}`);
         if (!this.taskByCorrelationId[correlationId]) {
             this.channel.nack(message);
             return;

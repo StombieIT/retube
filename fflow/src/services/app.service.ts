@@ -43,17 +43,22 @@ export class AppService {
     }
 
     async finishFlow(uploadSessionId: string, { savingPath }: FFlow.FinishParams) {
-        await this.fflow.finishFlow(uploadSessionId);
-        const uploadDir = this.path.uploadDir(uploadSessionId);
-        const ftpSession = await this.ftpSessionsOrchestrator.create();
-        await ftpSession.createDir(savingPath);
-        await ftpSession.uploadFromDir(
-            uploadDir,
-            savingPath,
-        );
-        this.logger.log(`Successfully uploaded files of ${uploadSessionId}`);
-        await fs.rm(uploadDir, { recursive: true, force: true });
-        ftpSession.destroy();
+        try {
+            await this.fflow.finishFlow(uploadSessionId);
+            const uploadDir = this.path.uploadDir(uploadSessionId);
+            const ftpSession = await this.ftpSessionsOrchestrator.create();
+            await ftpSession.createDir(savingPath);
+            await ftpSession.uploadFromDir(
+                uploadDir,
+                savingPath,
+            );
+            this.logger.log(`Successfully uploaded files of ${uploadSessionId}`);
+            await fs.rm(uploadDir, { recursive: true, force: true });
+            ftpSession.destroy();
+        } catch (err) {
+            this.logger.error(`finishFlow: ${err.message}`);
+            throw err;
+        }
     }
 
     pushToFlow(uploadSessionId: string, buffer: Buffer) {

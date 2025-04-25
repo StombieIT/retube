@@ -59,7 +59,7 @@ public class ChunkConsumerService {
         amqpChannel.queueDeclarePassive(uploadQueue);
         amqpChannel.queueDeclarePassive(replyQueue);
 
-        amqpChannel.exchangeDeclare(this.exchange, "topic");
+        amqpChannel.exchangeDeclarePassive(this.exchange);
         amqpChannel.queueBind(this.replyQueue, this.exchange, "reply.*");
         amqpChannel.basicConsume(this.uploadQueue, false, this::handleDelivery, this::handleCancelDelivery);
     }
@@ -106,6 +106,7 @@ public class ChunkConsumerService {
     }
 
     private void handleDelivery(String consumerTag, Delivery delivery) {
+        logger.info("Consuming some chunk");
         if (delivery == null) {
             return;
         }
@@ -125,6 +126,7 @@ public class ChunkConsumerService {
 
             String sessionId = toString(sessionIdLong);
             String correlationId = toString(correlationIdLong);
+            logger.info("Got chunk with cid {}", correlationId);
             int startByte = ((Number) headers.get("x-start-byte")).intValue();
             int size = ((Number) headers.get("x-size")).intValue();
             byte[] content = delivery.getBody();

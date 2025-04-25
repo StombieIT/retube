@@ -86,6 +86,7 @@ export class FFlowService {
         await destroyPromise;
         console.log(`finishFlow: Successfully finished with ${uploadSessionId}`);
         delete this.flowBySessionId[uploadSessionId];
+        this.logger.log('finishFlow: deleted flow from map');
     }
 
     private async killFlow(uploadSessionId: string) {
