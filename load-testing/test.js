@@ -8,7 +8,7 @@ const {
     VUS_COUNT = '10',
     TITLE = 'title',
     DESCRIPTION = 'description',
-    VIDEO_SIZE = '90000000',
+    VIDEO_SIZE = '9000000',
     CHUNK_SIZE = '8192',
     BASE_GATEWAY_URL,
 } = __ENV;
@@ -39,14 +39,14 @@ export function setup() {
     return { accessToken };
 }
 
-const UPLOAD_SESSION_INFO_BY_VU = {};
+const VIDEO_INFO_BY_VU = {};
 
 export default function ({ accessToken }) {
     const vu = __VU;
     const authorizationHeaders = {
         'Authorization': `Bearer ${accessToken}`,
     };
-    if (!UPLOAD_SESSION_INFO_BY_VU[vu]) {
+    if (!VIDEO_INFO_BY_VU[vu]) {
         const videoPayload = JSON.stringify({
             title: TITLE,
             description: DESCRIPTION,
@@ -61,18 +61,19 @@ export default function ({ accessToken }) {
             'create-video': (r) => r.status === 201 || r.status === 200,
         });
 
-        const { payload: { flows } } = res.json();
+        const { payload: { id, flows } } = res.json();
         const [flow] = flows;
         const { uploadSession } = flow;
         const uid = uploadSession.id;
-        UPLOAD_SESSION_INFO_BY_VU[vu] = {
+        VIDEO_INFO_BY_VU[vu] = {
+            id,
             uid,
             offset: 0,
         };
     }
 
-    const info = UPLOAD_SESSION_INFO_BY_VU[vu];
-    const { uid, offset } = info;
+    const info = VIDEO_INFO_BY_VU[vu];
+    const { id, uid, offset } = info;
     const startByte = offset;
     if (startByte >= videoSize) {
         return;
@@ -80,15 +81,21 @@ export default function ({ accessToken }) {
     const size = Math.min(videoSize - startByte, chunkSize);
     const buffer = generateRandomBuffer(size);
 
-    const res = http.post(`${BASE_GATEWAY_URL}/upload/${uid}`, buffer, { headers: {
+    const uploadRes = http.post(`${BASE_GATEWAY_URL}/upload/${uid}`, buffer, { headers: {
         ...authorizationHeaders,
         ...OCTET_STREAM_HEADERS,
         'x-size': size.toString(),
         'x-start-byte': startByte.toString(),
     }});
     info.offset += size;
-    check(res, {
+    check(uploadRes, {
         'upload': (r) => r.status === 201 || r.status === 200,
+    });
+
+    const stateRes = http.get(`${BASE_GATEWAY_URL}/state/${id}`);
+
+    check(stateRes, {
+        'state': (r) => r.status === 201 || r.status === 200,
     });
     sleep(0.05);
 }
