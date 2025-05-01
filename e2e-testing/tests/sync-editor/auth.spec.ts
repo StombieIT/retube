@@ -8,6 +8,26 @@ const {
 } = process.env;
 
 test.describe('Аутентификация/Авторизация', () => {
+    test('ui формы входа', async ({ page }) => {
+        const authModal = new AuthModal(page);
+
+        await authModal.open();
+        await authModal.switchToLogIn();
+
+        const form = authModal.getForm();
+        await expect(form).toHaveScreenshot('login.png');
+    });
+    
+    test('ui формы регистрации', async ({ page }) => {
+        const authModal = new AuthModal(page);
+        
+        await authModal.open();
+        await authModal.switchToRegister();
+
+        const form = authModal.getForm();
+        await expect(form).toHaveScreenshot('register.png');
+    });
+
     test('вход с помощью тестовых данных', async ({ page }) => {
         expect(USER_EMAIL, 'Email должен быть задан').toBeTruthy();
         expect(USER_PASSWORD, 'Пароль должен быть задан').toBeTruthy();
@@ -24,9 +44,6 @@ test.describe('Аутентификация/Авторизация', () => {
     });
 
     test('вход и выход', async ({ page }) => {
-        expect(USER_EMAIL, 'Email должен быть задан').toBeTruthy();
-        expect(USER_PASSWORD, 'Пароль должен быть задан').toBeTruthy();
-
         let authModal: AuthModal | null = new AuthModal(page);
 
         await authModal.open();

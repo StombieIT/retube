@@ -20,6 +20,10 @@ export class AuthModal {
         this.registerButton = page.getByText(REGISTER_BUTTON_TEXT);
     }
 
+    getForm(): Locator {
+        return this.page.locator('form');
+    }
+
     async open() {
         await this.page.goto('/');
     }
