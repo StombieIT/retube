@@ -9,19 +9,37 @@ const {
 
 test.describe('Аутентификация/Авторизация', () => {
     test('вход с помощью тестовых данных', async ({ page }) => {
-        expect(USER_EMAIL, 'Email должен быть задан').toBeDefined();
-        expect(USER_PASSWORD, 'Пароль должен быть задан').toBeDefined();
+        expect(USER_EMAIL, 'Email должен быть задан').toBeTruthy();
+        expect(USER_PASSWORD, 'Пароль должен быть задан').toBeTruthy();
 
         const authModal = new AuthModal(page);
 
         await authModal.open();
         await authModal.switchToLogIn();
         await authModal.fillEmail(USER_EMAIL!);
-        await authModal.fillEmail(USER_PASSWORD!);
+        await authModal.fillPassword(USER_PASSWORD!);
         const authorizedPage = await authModal.submit();
 
-        // Модальное окно должно быть скрыто в результате авторизации и открываться страница самого приложения
-        expect(authorizedPage, 'Модальное окно скрывается').toBeDefined();
+        expect(authorizedPage, 'Модальное окно скрывается').toBeTruthy();
+    });
+
+    test('вход и выход', async ({ page }) => {
+        expect(USER_EMAIL, 'Email должен быть задан').toBeTruthy();
+        expect(USER_PASSWORD, 'Пароль должен быть задан').toBeTruthy();
+
+        let authModal: AuthModal | null = new AuthModal(page);
+
+        await authModal.open();
+        await authModal.switchToLogIn();
+        await authModal.fillEmail(USER_EMAIL!);
+        await authModal.fillPassword(USER_PASSWORD!);
+        const authorizedPage = await authModal.submit();
+
+        expect(authorizedPage, 'Модальное окно скрывается').toBeTruthy();
+
+        authModal = await authorizedPage!.logOut();
+
+        expect(authModal, 'Модальное окно открывается при выходе').toBeTruthy();
     });
 
     test('успешная регистрация и вход', async ({ page }) => {        
@@ -30,7 +48,6 @@ test.describe('Аутентификация/Авторизация', () => {
 
         const authModal = new AuthModal(page);
 
-        // Регистрация
         await authModal.open();
         await authModal.switchToRegister();
         await authModal.fillEmail(email);
@@ -38,11 +55,9 @@ test.describe('Аутентификация/Авторизация', () => {
         await authModal.fillPasswordRepeat(password);
         await authModal.submit();
 
-        // Вход
         await authModal.switchToLogIn();
         const authorizedPage = await authModal.submit();
 
-        // Модальное окно должно быть скрыто в результате авторизации и открываться страница самого приложения
-        expect(authorizedPage, 'Модальное окно скрывается').toBeDefined();
+        expect(authorizedPage, 'Модальное окно скрывается').toBeTruthy();
     });
 });

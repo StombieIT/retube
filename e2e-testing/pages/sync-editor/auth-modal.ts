@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { SynchronizingPage } from './synchronizing-page';
+import { AuthorizedPage } from './authorized-page';
 
 const LOG_IN_BUTTON_TEXT = 'Вход';
 const REGISTER_BUTTON_TEXT = 'Регистрация';
@@ -43,18 +44,18 @@ export class AuthModal {
         await this.page.getByPlaceholder(PASSWORD_REPEAT_PLACEHOLDER).fill(passwordRepeat);
     }
 
-    async submit(): Promise<SynchronizingPage | null> {
+    async submit(): Promise<AuthorizedPage | null> {
         await this.page.getByRole('button', {
             name: SUBMIT_BUTTON_TEXT,
         }).click();
         try {
             await this.logInButton.waitFor({
                 state: 'hidden',
-                timeout: 1000,
+                timeout: 5000,
             });
-            return null;
-        } catch (error) {
             return new SynchronizingPage(this.page);
+        } catch (error) {
+            return null;
         }
     }
 }
