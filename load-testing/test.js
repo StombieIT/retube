@@ -5,10 +5,10 @@ import { JSON_HEADERS, OCTET_STREAM_HEADERS } from './constants.js';
 import { generateRandomBuffer } from './utils.js';
 
 const {
-    VUS_COUNT = '10',
+    VUS_COUNT = '125',
     TITLE = 'title',
     DESCRIPTION = 'description',
-    VIDEO_SIZE = '9000000',
+    VIDEO_SIZE = '90000',
     CHUNK_SIZE = '8192',
     BASE_GATEWAY_URL,
 } = __ENV;
