@@ -84,7 +84,7 @@ export const Candidate: FC<CandidateProps> = ({
     const isInProgress = typeof progress == 'number';
 
     return (
-        <div className={cn(css.candidateWrapper, 'candidate')}>
+        <div className={cn(css.candidateWrapper, 'candidate')} data-testid="flow-candidate">
             {onVideoDropped && (
                 <button type="button" className={css.deleteButton} onClick={onDelete}>
                     Удалить

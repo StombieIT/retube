@@ -71,11 +71,11 @@ export const SyncForm: FC = () => {
                 onChangeContent={onDescriptionChange}
             />
             {flowsContent.length ? (
-                <div className={css.flows}>
+                <div className={css.flows} data-testid="flows-grid">
                     {flowsContent}
                 </div>
             ) : (
-                <div className={css.motivationText}>
+                <div className={css.motivationText} data-testid="motivation-text">
                     Загрузите свое видео в несколько потоков
                 </div>
             )}
