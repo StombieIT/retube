@@ -95,7 +95,7 @@ export const SyncForm: FC = () => {
                         type="button"
                         className={css.button}
                         onClick={onUpload}
-                        disabled={!isUploadDisabled}
+                        disabled={isUploadDisabled}
                     >
                         Загрузить
                     </Button>
