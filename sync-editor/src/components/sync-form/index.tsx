@@ -51,6 +51,8 @@ export const SyncForm: FC = () => {
         dispatch(updateDescription(description));
     };
 
+    const isUploadDisabled = !allCandidatesHaveVideo || !title.length || !description.length;
+
     return (
         <div className={css.form}>
             <Logo className={css.logo} />
@@ -93,7 +95,7 @@ export const SyncForm: FC = () => {
                         type="button"
                         className={css.button}
                         onClick={onUpload}
-                        disabled={!allCandidatesHaveVideo}
+                        disabled={!isUploadDisabled}
                     >
                         Загрузить
                     </Button>
