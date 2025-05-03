@@ -10,6 +10,9 @@ const {
 export default defineConfig({
     use: {
         baseURL: BASE_URL,
-        headless: false,
+        viewport: null,
+        launchOptions: {
+            args: ['--start-maximized'], // полноэкранный режим
+        },
     },
 });

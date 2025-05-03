@@ -11,6 +11,8 @@ const {
 
 const MAX_FLOWS_COUNT = 4;
 const UPLOADING_MAX_FLOWS_COUNT = 2;
+const VIDEO_TITLE = 'video';
+const VIDEO_DESCRIPTION = 'description';
 
 test.describe('Страница синхронизации', () => {
     let videoBuffer: Buffer;
@@ -42,7 +44,7 @@ test.describe('Страница синхронизации', () => {
     });
 
     test('ограничение на количество потоков', async ({ page }) => {
-        const synchronizing = new SynchronizingPage(page);        
+        const synchronizing = new SynchronizingPage(page);     
 
         for (let i = 0; i < MAX_FLOWS_COUNT; i++) {
             await synchronizing.addFlow();
@@ -51,8 +53,30 @@ test.describe('Страница синхронизации', () => {
         await expect(synchronizing.addFlow).rejects.toThrow();
     });
 
-    // test('добавление и удаление потоков', () => {
-    // });
+    test('добавление и удаление потоков', async ({ page }) => {
+        const synchronizing = new SynchronizingPage(page);
+
+        const flowsGrid = synchronizing.getFlowsGrid();
+
+        const screenshotOptions = {
+            mask: [
+                synchronizing.getVideoLocator(),
+            ]
+        };
+
+        for (let i = 0; i < MAX_FLOWS_COUNT; i++) {
+            await synchronizing.addFlow();
+            await expect(flowsGrid).toHaveScreenshot(`adding-${i + 1}.png`, screenshotOptions);
+        }
+        
+        for (let i = MAX_FLOWS_COUNT - 1; i >= 1; i--) {
+            await synchronizing.deleteFlow(0);
+            await expect(flowsGrid).toHaveScreenshot(`deleting-${i}.png`, screenshotOptions);
+        }
+        
+        await synchronizing.deleteFlow(0);
+        await expect(flowsGrid).toBeHidden();
+    });
 
     test('загрузка видео в потоки', async ({ page }) => {
         const synchronizing = new SynchronizingPage(page);
@@ -77,6 +101,25 @@ test.describe('Страница синхронизации', () => {
         }
     });
 
-    // test('валидация перед загрузкой', () => {
-    // });
+    test('валидация перед загрузкой', async ({ page }) => {
+        const synchronizing = new SynchronizingPage(page);
+
+        const uploadButton = synchronizing.getUploadButton();
+        await expect(uploadButton).toBeHidden();
+
+        await synchronizing.addFlow();
+        await expect(synchronizing.uploadFlow).rejects.toThrow();
+        await synchronizing.fillTitle(VIDEO_TITLE);
+        await expect(synchronizing.uploadFlow).rejects.toThrow();
+        await synchronizing.fillDescription(VIDEO_DESCRIPTION);
+        await expect(synchronizing.uploadFlow).rejects.toThrow();
+        await synchronizing.addFlow();
+        
+        await synchronizing.addVideoToFlow(0, videoBuffer);
+        await expect(synchronizing.uploadFlow).rejects.toThrow();
+        await synchronizing.addVideoToFlow(1, videoBuffer);
+        await synchronizing.uploadFlow();
+
+        await expect(synchronizing.uploadFlow).rejects.toThrow();
+    });
 });

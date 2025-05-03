@@ -15,23 +15,31 @@ const VIDEO_SELECTOR = 'video';
 export class SynchronizingPage extends AuthorizedPage {
     private readonly titleField: Locator;    
     private readonly descriptionField: Locator;    
+    private readonly uploadButton: Locator;
+    private readonly flowCandidate: Locator;
 
     constructor(page: Page) {
         super(page);
         this.titleField = this.page.getByPlaceholder(TITLE_PLACEHOLDER);
         this.descriptionField = this.page.getByPlaceholder(DESCRIPTION_PLACEHOLDER);
+        this.uploadButton = this.page.getByRole('button', { name: UPLOAD_BUTTON_LABEL });
+        this.flowCandidate = this.page.getByTestId(FLOW_CANDIDATE_TEST_ID);
     }
 
-    getMotivationText() {
+    getMotivationText(): Locator {
         return this.page.getByTestId(MOTIVATION_TEXT_TEST_ID);
     }
 
-    getFlowsGrid() {
+    getFlowsGrid(): Locator {
         return this.page.getByTestId(FLOWS_GRID_TEST_ID);
     }
 
-    getVideoLocator() {
+    getVideoLocator(): Locator {
         return this.page.locator(VIDEO_SELECTOR);
+    }
+
+    getUploadButton(): Locator {
+        return this.uploadButton;
     }
 
     async fillTitle(title: string) {
@@ -48,8 +56,12 @@ export class SynchronizingPage extends AuthorizedPage {
         await addFlowButton.click();
     }
 
+    async getFlowsCount() {
+        return await this.flowCandidate.count();
+    }
+
     async addVideoToFlow(flowIdx: number, video: Buffer) {
-        await this.page.getByTestId(FLOW_CANDIDATE_TEST_ID)
+        await this.flowCandidate
             .nth(flowIdx)
             .locator(INPUT_FILE_SELECTOR)
             .setInputFiles({
@@ -60,16 +72,16 @@ export class SynchronizingPage extends AuthorizedPage {
     }
 
     async deleteFlow(flowIdx: number) {
-        await this.page.getByTestId(FLOW_CANDIDATE_TEST_ID)
+        await this.flowCandidate
             .nth(flowIdx)
             .getByRole('button', { name: DELETE_BUTTON_LABEL })
             .click();
     }
 
     async uploadFlow() {
-        const uploadButton = this.page.getByRole('button', { name: UPLOAD_BUTTON_LABEL });
+        const uploadButton = this.getUploadButton();
         await this.checkDisabled(uploadButton);
-        await this.page.getByRole('button', { name: UPLOAD_BUTTON_LABEL }).click();
+        await uploadButton.click();
     }
 
     private async checkDisabled(locator: Locator) {
